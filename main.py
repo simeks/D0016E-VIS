@@ -22,12 +22,12 @@ class Scene:
         self.viewport = (0.1,0.1,0.1); # Mörkgrå bakgrund
 
         # Sätt så vi får ett ambient light som lyser upp scenen
-        self.sceneMgr.setAmbientLight(ogre.ColourValue(0.3,0.3,0.3));
+        self.sceneMgr.setAmbientLight(ogre.ColourValue(0.9,0.9,0.9));
         # Eftersom scengrafen är som ett träd så hämtar vi root-noden och bygger utifrån den
         self.rootNode = self.sceneMgr.getRootSceneNode();
         # Skapa en entitet från en mesh-fil vi har bland vår media
         self.entity = self.sceneMgr.createEntity("cube", "cube.mesh");
-        self.entity.setMaterialName("Examples/RustySteel");
+        self.entity.setMaterialName("BaseWhite");
         # Skapa en child node till vår root node
         self.node = self.rootNode.createChildSceneNode();
         # och fäst vår entitet vid den noden
@@ -35,9 +35,10 @@ class Scene:
 
         # Lägg till ett stort plan (1000x1000)
         plane = ogre.Plane((0, 1, 0), 0);
-        ogre.MeshManager.getSingleton().createPlane ("Plane", "General", plane, 1000, 1000,
+        ogre.MeshManager.getSingleton().createPlane ("Plane", "General", plane, 10000, 10000,
                                                      1, 1, True, 1, 1, 1, (0,0,1));
-        self.planeEntity = self.sceneMgr.createEntity("Plane", "Plane")
+        self.planeEntity = self.sceneMgr.createEntity("Plane", "Plane");
+        self.planeEntity.setMaterialName("Examples/RustySteel");
         self.planeNode = self.rootNode.createChildSceneNode();
         self.planeNode.attachObject(self.planeEntity);
         

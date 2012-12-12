@@ -1,16 +1,19 @@
 # -*- coding: cp1252 -*-
 import ogre.renderer.OGRE as ogre
 import ogre.io.OIS as OIS
+import math
 
 from openpyxl.reader.excel import load_workbook
 
 class Input(OIS.KeyListener):
 
-    num_timesteps = 1001;
-    timestep = 0.01;
-    positions = [];
-    total_time = 0;
+    num_timesteps = 1001;   # Antalet timesteps
+    timestep = 0.01;        # Sekunder per timestep
+    total_time = 0;         # Totala tiden i vår animation, startar om när vi gått igenom all data
 
+    positions = []; # Positioner, ett värde per timestep
+    angles = [];    # Vinklar i radianer, ett värde per timestep
+    
     # Kontruktor
     #   app     : Objekt för vår huvudapplikation
     #   window  : Objekt för vårat fönster
@@ -35,8 +38,10 @@ class Input(OIS.KeyListener):
         # Ladda in data från vårat excel-dokument
         self.wb = load_workbook(filename = r'assets/indata.xlsx');
         ws = self.wb.get_active_sheet();
-        for row in ws.range('C3:D'+str(self.num_timesteps+2)):
+        for row in ws.range('C3:H'+str(self.num_timesteps+2)):
             self.positions.append(ogre.Vector3(row[0].value, 150, row[1].value));
+            self.angles.append(math.radians(row[3].value));
+
 
     def shutdown(self):
         # Städa upp allt vi skapat med OIS
@@ -49,51 +54,33 @@ class Input(OIS.KeyListener):
     # en chans att göra saker som att läsa indata eller flytta kameran
     #   evt     : FrameEvent, samma data som kommer i Ogre::FrameListener::frameStarted
     def frame(self, evt):
+        # Läs in input-data
+        if(self.keyboard):
+            self.keyboard.capture();
+
         self.total_time += evt.timeSinceLastFrame;
         # Ifall tiden har gått utanför våran data så startar vi bara om från t=0 igen
         if(self.total_time > ((self.num_timesteps-1) * self.timestep)):
             self.total_time = 0;
 
+        # Räkna ut närmaste timestep
         index = int(round(self.total_time/self.timestep));
 
+        # Hämta ut datan för just det timesteppet
         pos = self.positions[index];
-        self.camera.setPosition(pos);     
-        # Läs in input-data
-        if(self.keyboard):
-            self.keyboard.capture();
-        # Uppdatera kamerans position
-        #pos = self.camera.getPosition();
-        # Multiplicera med timeSinceLastFrame så vi får en jämn unit/s
-        #pos += self.camera.getRight() * (self.velocity_x * evt.timeSinceLastFrame);
-        #pos += self.camera.getDirection() * (self.velocity_z * evt.timeSinceLastFrame);
-        #self.camera.setPosition(pos);
-        # Uppdatera så att kameran sen alltid kollar i mitten
-        #self.camera.lookAt(0,0,0);
-    
+        angle = self.angles[index];
+
+        # Beräkna vår rotation utifrån vinklarna vi fått, just nu roterar kameran endast runt Y-axeln
+        orientation = ogre.Quaternion(math.pi - angle, (0,1,0));
+
+        # Uppdatera kameran
+        self.camera.setOrientation(orientation);
+        self.camera.setPosition(pos);
+        
         
     def keyPressed(self, evt):
-        # Avsluta ifall escape trycks ned
-        if evt.key == OIS.KC_ESCAPE:
-            self.app.stop();
-        if evt.key == OIS.KC_W: # Frammåt
-            self.velocity_z = 150; 
-        if evt.key == OIS.KC_S: # Bakåt
-            self.velocity_z = -150;
-        if evt.key == OIS.KC_A: # Vänster
-            self.velocity_x = -250;
-        if evt.key == OIS.KC_D: # Höger
-            self.velocity_x = 250;
-        
         return True
  
     def keyReleased(self, evt):
-        if evt.key == OIS.KC_W: # Frammåt
-            self.velocity_z = 0; 
-        if evt.key == OIS.KC_S: # Bakåt
-            self.velocity_z = 0;
-        if evt.key == OIS.KC_A: # Vänster
-            self.velocity_x = 0;
-        if evt.key == OIS.KC_D: # Höger
-            self.velocity_x = 0;
         return True
     
