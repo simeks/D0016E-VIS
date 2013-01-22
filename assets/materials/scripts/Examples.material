@@ -1,4 +1,4 @@
-material Examples/RustySteel
+material Floor
 {
 	technique
 	{
@@ -6,7 +6,8 @@ material Examples/RustySteel
 		{
 			texture_unit
 			{
-				texture RustySteel.jpg
+				scale 0.1 0.1
+				texture checkboard.png
 			}
 		}
 	}
