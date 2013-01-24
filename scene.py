@@ -4,9 +4,8 @@ import ogre.renderer.OGRE as ogre
 class Scene:
     # Konstruktor
     #   root    : Ogres root-objekt
-    def __init__(self, root, window):
+    def __init__(self, root):
         self.root = root;
-        self.window = window;
 
     def __del__(self):
         del self.sceneMgr;
@@ -14,11 +13,6 @@ class Scene:
     def init(self):
         # Skapa en scengraf för den här scenen
         self.sceneMgr = self.root.createSceneManager(ogre.ST_GENERIC, "Scene");
-        # Skapa en kamera
-        self.camera = self.sceneMgr.createCamera("MainCamera");
-        # och en viewport
-        self.viewport = self.window.addViewport(self.camera);
-        self.viewport = (0.1,0.1,0.1); # Mörkgrå bakgrund
 
         # Sätt så vi får ett ambient light som lyser upp scenen
         self.sceneMgr.setAmbientLight(ogre.ColourValue(0.9,0.9,0.9));
@@ -49,11 +43,11 @@ class Scene:
 
         self.node.setPosition(0,0,0);
 
-        # Lägg upp kameran så den kollar på våran entitet
-        self.camera.setPosition(0,150,-500);
-        self.camera.lookAt(0,0,0);
-        self.camera.nearClipDistance = 5;
-       
+    def createCamera(self, name):
+        return self.sceneMgr.createCamera(name);
+        
+
+
         
     #def shutdown(self):
         

@@ -17,11 +17,15 @@ class Input(OIS.KeyListener):
     # Kontruktor
     #   app     : Objekt för vår huvudapplikation
     #   window  : Objekt för vårat fönster
-    def __init__(self, app, window, camera):
+    #   cameras : En lista med alla kameror i scenen
+    def __init__(self, app, window, mainCamera, leftCamera, rightCamera):
         OIS.KeyListener.__init__(self);
         self.app = app;
         self.window = window;
-        self.camera = camera;
+        self.mainCamera = mainCamera;
+        self.leftCamera = leftCamera;
+        self.rightCamera = rightCamera;
+        
 
     def __del__(self):
         self.shutdown();    
@@ -74,8 +78,25 @@ class Input(OIS.KeyListener):
         orientation = ogre.Quaternion(math.pi - angle, (0,1,0));
 
         # Uppdatera kameran
-        self.camera.setOrientation(orientation);
-        self.camera.setPosition(pos);
+
+        # Rakt fram
+        self.mainCamera.setOrientation(orientation);
+        self.mainCamera.setPosition(pos);
+
+        # Räkna ut riktning till vänster (Ifall vi har en kamera för vänster)
+        sqrPt5 = math.sqrt(0.5);
+        
+        if self.leftCamera != None:
+            leftOrientation = orientation * ogre.Quaternion(sqrPt5, 0, sqrPt5, 0);
+            self.leftCamera.setOrientation(leftOrientation);
+            self.leftCamera.setPosition(pos);
+
+        
+        # Räkna ut riktning till höger (Ifall vi har en kamera för höger)
+        if self.rightCamera != None:
+            rightOrientation = orientation * ogre.Quaternion(sqrPt5, 0, -sqrPt5, 0);
+            self.rightCamera.setOrientation(rightOrientation);
+            self.rightCamera.setPosition(pos);
         
         
     def keyPressed(self, evt):
