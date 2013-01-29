@@ -126,7 +126,9 @@ class Application(ogre.FrameListener):
     def frameStarted(self, evt):
         # Notifiera input-modulen
         self.input.frame(evt);
-
+        
+        self.scene.frame(evt);
+        
         # Kolla ifall vårat fönster har stängts, i så fall returnerar vi false,
         #   vilket resulterar i att ogre avslutar
         if(self.mainWindow.isClosed()):
@@ -152,8 +154,8 @@ class Application(ogre.FrameListener):
         return (self.isStopping == False);
     
 if __name__ == '__main__':
-    multipleCameras = True; # Definerar ifall vi ska ha flera kameror eller inte
-    multipleWindows = True; # Definerar ifall vi ska ha flera fönster eller inte
+    multipleCameras = False; # Definerar ifall vi ska ha flera kameror eller inte
+    multipleWindows = False; # Definerar ifall vi ska ha flera fönster eller inte
 
     
     app = Application(multipleCameras, multipleWindows);
