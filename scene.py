@@ -8,14 +8,18 @@ class Scene:
         self.root = root;
 
         # default värden
-        self.walkSpeed = 35.0 # Objektets hastighet
+        self.walkSpeed = 600.0 # Objektets hastighet
         self.direction = ogre.Vector3().ZERO # Objektets riktning
         self.distance = 0.0 # Distansen mellan objektet och punkten dit objektet är påväg
 
         # 
         self.walklist = []
-        self.walklist.append(ogre.Vector3(550, 0, 50))
-        self.walklist.append(ogre.Vector3(-100, 0, -200))
+        self.walklist.append(ogre.Vector3(-100, 250, 0))
+        self.walklist.append(ogre.Vector3(-1000, 250, -700))
+        self.walklist.append(ogre.Vector3(-2000, 250, -750))
+        self.walklist.append(ogre.Vector3(-3350, 250, -750))
+        self.walklist.append(ogre.Vector3(-4250, 250, -65))
+        self.walklist.append(ogre.Vector3(-4800, 250, -80))
 
     def __del__(self):
         del self.sceneMgr;
@@ -24,27 +28,38 @@ class Scene:
         # Skapa en scengraf för den här scenen
         self.sceneMgr = self.root.createSceneManager(ogre.ST_GENERIC, "Scene");
 
+        # Skapa himmelen
+        self.sceneMgr.setSkyDome (True, "Examples/CloudySky", 24, 16, 50000)
         # Sätt så vi får ett ambient light som lyser upp scenen
         self.sceneMgr.setAmbientLight(ogre.ColourValue(0.9,0.9,0.9));
         # Eftersom scengrafen är som ett träd så hämtar vi root-noden och bygger utifrån den
         self.rootNode = self.sceneMgr.getRootSceneNode();
         
         # Skapa en entitet från en mesh-fil vi har bland vår media
-        self.entity = self.sceneMgr.createEntity("Robot", "robot.mesh");
+        self.entity = self.sceneMgr.createEntity("Sinbad", "Sinbad.mesh");
         # Skapa en child node till vår root node
-        self.node = self.rootNode.createChildSceneNode('robotNode', (-1500, 100, 0));
+        self.node = self.rootNode.createChildSceneNode('SinbadNode', (-100, 250, 0));
         # och fäst vår entitet vid den noden
         self.node.attachObject(self.entity);
+        self.node.setScale(50, 50, 50);
 
-        ent2 = self.sceneMgr.createEntity("barrel", "Barrel.mesh");
-        node2 = self.rootNode.createChildSceneNode("konNode");
-        node2.setPosition(-600, 50, 10); 
-        node2.attachObject(ent2);
-        node2.setScale(20, 20, 20);
+
+        self.ent2 = self.sceneMgr.createEntity("barrel", "Barrel.mesh");
+        self.node2 = self.rootNode.createChildSceneNode("konNode");
+        self.node2.setPosition(-800, 70, 10); 
+        self.node2.attachObject(self.ent2);
+        self.node2.setScale(20, 25, 20);
+
+        self.ent3 = self.sceneMgr.createEntity("barrel2", "Barrel.mesh");
+        self.node3 = self.rootNode.createChildSceneNode("konNode2");
+        self.node3.setPosition(-4200, 70, -700); 
+        self.node3.attachObject(self.ent3);
+        self.node3.setScale(20, 25, 20);
+        
         
         # Lägg till ett stort plan (1000x1000)
         plane = ogre.Plane((0, 1, 0), 0);
-        ogre.MeshManager.getSingleton().createPlane ("Plane", "General", plane, 10000, 10000,
+        ogre.MeshManager.getSingleton().createPlane ("Plane", "General", plane, 20000, 20000,
                                                      100, 100, True, 1, 1, 1, (0,0,1));
         self.planeEntity = self.sceneMgr.createEntity("Plane", "Plane");
         self.planeEntity.setMaterialName("Floor");
@@ -52,9 +67,9 @@ class Scene:
         self.planeNode.attachObject(self.planeEntity);
 
         #
-        self.animationState = self.entity.getAnimationState('Idle')
-        self.animationState.setLoop(True)
-        self.animationState.setEnabled(True)
+        animationState = self.entity.getAnimationState('IdleTop')
+        animationState.setLoop(True)
+        animationState.setEnabled(True)
 
         # Lägg till ett directional light så man ser kuben något bättre
         self.light = self.sceneMgr.createLight("Light");
@@ -70,11 +85,12 @@ class Scene:
     def nextLocation(self):
       if len(self.walklist) == 0:
          return False
-      self.destination = self.walklist.pop()
+      self.destination = self.walklist.pop(0) # Plocka objektet högst upp i listan
+      self.walklist.append(self.destination) # Lägg tillbaka längst bak i listan
       self.direction = self.destination - self.node.getPosition()
       self.distance = self.direction.normalise()
  
-      src = self.node.getOrientation() * ogre.Vector3().UNIT_X
+      src = self.node.getOrientation() * ogre.Vector3().UNIT_Z
       if 1.0 + src.dotProduct(self.direction) < 0.0001:
          self.node.yaw(ogre.Degree(180))
       else:
@@ -87,9 +103,12 @@ class Scene:
       if self.direction == ogre.Vector3().ZERO:
          if self.nextLocation():
             # Set walking animation
-            self.animationState = self.entity.getAnimationState('Walk')
-            self.animationState.setLoop(True)
-            self.animationState.setEnabled(True)
+            self.animationStateTop = self.entity.getAnimationState('RunTop')
+            self.animationStateTop.setLoop(True)
+            self.animationStateTop.setEnabled(True)
+            self.animationStateBase = self.entity.getAnimationState('RunBase')
+            self.animationStateBase.setLoop(True)
+            self.animationStateBase.setEnabled(True)
       else:
          move = self.walkSpeed * evt.timeSinceLastFrame;
          self.distance -= move
@@ -97,13 +116,17 @@ class Scene:
             self.node.setPosition(self.destination)
             self.direction = ogre.Vector3().ZERO
             if not self.nextLocation():
-               # Set Idle animation
-               self.animationState = self.entity.getAnimationState('Idle')
-               self.animationState.setLoop(True)
-               self.animationState.setEnabled(True)
+                # Set Idle animation
+                self.animationStateTop = self.entity.getAnimationState('IdleTop')
+                self.animationStateTop.setLoop(True)
+                self.animationStateTop.setEnabled(True)
+                self.animationStateBase = self.entity.getAnimationState('IdleBase')
+                self.animationStateBase.setLoop(True)
+                self.animationStateBase.setEnabled(True)
          else:
             self.node.translate(self.direction * move)
-      self.animationState.addTime(evt.timeSinceLastFrame)
+      self.animationStateTop.addTime(evt.timeSinceLastFrame)
+      self.animationStateBase.addTime(evt.timeSinceLastFrame)
         
     #def shutdown(self):
         

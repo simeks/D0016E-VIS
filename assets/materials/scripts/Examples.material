@@ -6,8 +6,8 @@ material Floor
 		{
 			texture_unit
 			{
-				scale 0.1 0.1
-				texture checkboard.png
+				scale 0.05 0.05
+				texture terr_rock-dirt.jpg
 			}
 		}
 	}
@@ -78,3 +78,39 @@ material Examples/Robot
 		}
 	}
 }
+
+material Examples/CloudySky
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			depth_write off
+
+			texture_unit
+			{
+				texture clouds.jpg
+			}
+		}
+	}
+}
+material Examples/TrippySkyBox
+{
+	technique
+	{
+		pass
+		{
+			lighting off
+			depth_write off
+
+			texture_unit
+			{
+				cubic_texture nm.png separateUV
+				tex_address_mode clamp
+			}
+		}
+	}
+}
+
+
