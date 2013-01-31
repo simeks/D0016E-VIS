@@ -14,12 +14,12 @@ class Scene:
 
         # 
         self.walklist = []
-        self.walklist.append(ogre.Vector3(-100, 250, 0))
-        self.walklist.append(ogre.Vector3(-1000, 250, -700))
-        self.walklist.append(ogre.Vector3(-2000, 250, -750))
-        self.walklist.append(ogre.Vector3(-3350, 250, -750))
-        self.walklist.append(ogre.Vector3(-4250, 250, -65))
-        self.walklist.append(ogre.Vector3(-4800, 250, -80))
+        self.walklist.append(ogre.Vector3(-100, 50, 0))
+        self.walklist.append(ogre.Vector3(-1000, 50, -700))
+        self.walklist.append(ogre.Vector3(-2000, 50, -750))
+        self.walklist.append(ogre.Vector3(-3350, 50, -750))
+        self.walklist.append(ogre.Vector3(-4250, 50, -65))
+        self.walklist.append(ogre.Vector3(-4800, 50, -80))
 
     def __del__(self):
         del self.sceneMgr;
@@ -36,12 +36,12 @@ class Scene:
         self.rootNode = self.sceneMgr.getRootSceneNode();
         
         # Skapa en entitet från en mesh-fil vi har bland vår media
-        self.entity = self.sceneMgr.createEntity("Sinbad", "Sinbad.mesh");
+        self.entity = self.sceneMgr.createEntity("Sinbad", "robot.mesh");
         # Skapa en child node till vår root node
-        self.node = self.rootNode.createChildSceneNode('SinbadNode', (-100, 250, 0));
+        self.node = self.rootNode.createChildSceneNode('SinbadNode', (-100, 50, 0));
         # och fäst vår entitet vid den noden
         self.node.attachObject(self.entity);
-        self.node.setScale(50, 50, 50);
+        self.node.setScale(2, 2, 2);
 
 
         self.ent2 = self.sceneMgr.createEntity("barrel", "Barrel.mesh");
@@ -67,7 +67,7 @@ class Scene:
         self.planeNode.attachObject(self.planeEntity);
 
         #
-        animationState = self.entity.getAnimationState('IdleTop')
+        animationState = self.entity.getAnimationState('Idle')
         animationState.setLoop(True)
         animationState.setEnabled(True)
 
@@ -90,7 +90,7 @@ class Scene:
       self.direction = self.destination - self.node.getPosition()
       self.distance = self.direction.normalise()
  
-      src = self.node.getOrientation() * ogre.Vector3().UNIT_Z
+      src = self.node.getOrientation() * ogre.Vector3().UNIT_X
       if 1.0 + src.dotProduct(self.direction) < 0.0001:
          self.node.yaw(ogre.Degree(180))
       else:
@@ -103,12 +103,12 @@ class Scene:
       if self.direction == ogre.Vector3().ZERO:
          if self.nextLocation():
             # Set walking animation
-            self.animationStateTop = self.entity.getAnimationState('RunTop')
+            self.animationStateTop = self.entity.getAnimationState('Walk')
             self.animationStateTop.setLoop(True)
             self.animationStateTop.setEnabled(True)
-            self.animationStateBase = self.entity.getAnimationState('RunBase')
-            self.animationStateBase.setLoop(True)
-            self.animationStateBase.setEnabled(True)
+            #self.animationStateBase = self.entity.getAnimationState('RunBase')
+            #self.animationStateBase.setLoop(True)
+           # self.animationStateBase.setEnabled(True)
       else:
          move = self.walkSpeed * evt.timeSinceLastFrame;
          self.distance -= move
@@ -117,16 +117,16 @@ class Scene:
             self.direction = ogre.Vector3().ZERO
             if not self.nextLocation():
                 # Set Idle animation
-                self.animationStateTop = self.entity.getAnimationState('IdleTop')
+                self.animationStateTop = self.entity.getAnimationState('Idle')
                 self.animationStateTop.setLoop(True)
                 self.animationStateTop.setEnabled(True)
-                self.animationStateBase = self.entity.getAnimationState('IdleBase')
-                self.animationStateBase.setLoop(True)
-                self.animationStateBase.setEnabled(True)
+               # self.animationStateBase = self.entity.getAnimationState('IdleBase')
+               # self.animationStateBase.setLoop(True)
+                #self.animationStateBase.setEnabled(True)
          else:
             self.node.translate(self.direction * move)
       self.animationStateTop.addTime(evt.timeSinceLastFrame)
-      self.animationStateBase.addTime(evt.timeSinceLastFrame)
+     # self.animationStateBase.addTime(evt.timeSinceLastFrame)
         
     #def shutdown(self):
         
