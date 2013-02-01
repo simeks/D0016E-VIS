@@ -8,18 +8,14 @@ class Scene:
         self.root = root;
 
         # default värden
-        self.walkSpeed = 600.0 # Objektets hastighet
+        self.walkSpeed = 200.0 # Objektets hastighet
         self.direction = ogre.Vector3().ZERO # Objektets riktning
         self.distance = 0.0 # Distansen mellan objektet och punkten dit objektet är påväg
 
         # 
         self.walklist = []
-        self.walklist.append(ogre.Vector3(-100, 50, 0))
-        self.walklist.append(ogre.Vector3(-1000, 50, -700))
-        self.walklist.append(ogre.Vector3(-2000, 50, -750))
-        self.walklist.append(ogre.Vector3(-3350, 50, -750))
-        self.walklist.append(ogre.Vector3(-4250, 50, -65))
-        self.walklist.append(ogre.Vector3(-4800, 50, -80))
+        self.walklist.append(ogre.Vector3(-4350, 0, -550))
+        self.walklist.append(ogre.Vector3(-3350, 0, 550))
 
     def __del__(self):
         del self.sceneMgr;
@@ -27,21 +23,22 @@ class Scene:
     def init(self):
         # Skapa en scengraf för den här scenen
         self.sceneMgr = self.root.createSceneManager(ogre.ST_GENERIC, "Scene");
-
+        self.sceneMgr.setShadowTechnique(ogre.SHADOWTYPE_STENCIL_ADDITIVE);
         # Skapa himmelen
         self.sceneMgr.setSkyDome (True, "Examples/CloudySky", 24, 16, 50000)
         # Sätt så vi får ett ambient light som lyser upp scenen
-        self.sceneMgr.setAmbientLight(ogre.ColourValue(0.9,0.9,0.9));
+        self.sceneMgr.setAmbientLight(ogre.ColourValue(0.5,0.5,0.5));
         # Eftersom scengrafen är som ett träd så hämtar vi root-noden och bygger utifrån den
         self.rootNode = self.sceneMgr.getRootSceneNode();
         
         # Skapa en entitet från en mesh-fil vi har bland vår media
         self.entity = self.sceneMgr.createEntity("Sinbad", "robot.mesh");
+        self.entity.setCastShadows(True);
         # Skapa en child node till vår root node
-        self.node = self.rootNode.createChildSceneNode('SinbadNode', (-100, 50, 0));
+        self.node = self.rootNode.createChildSceneNode('SinbadNode', (-4350, 0, -550));
         # och fäst vår entitet vid den noden
         self.node.attachObject(self.entity);
-        self.node.setScale(2, 2, 2);
+        self.node.setScale(10, 10, 10);
 
 
         self.ent2 = self.sceneMgr.createEntity("barrel", "Barrel.mesh");
@@ -73,9 +70,10 @@ class Scene:
 
         # Lägg till ett directional light så man ser kuben något bättre
         self.light = self.sceneMgr.createLight("Light");
+        self.light.setCastShadows(True);
         self.light.type = ogre.Light.LT_DIRECTIONAL;
         self.light.diffuseColour = (0.9,0.9,0.9);
-        self.light.direction = (0.5, 0.5, 0.5);
+        self.light.direction = (0.5, -0.5, 0.5);
 
 
     def createCamera(self, name):

@@ -3,13 +3,15 @@ import ogre.renderer.OGRE as ogre
 import input
 import scene
 
+import math
 
 class Application(ogre.FrameListener):
     # Konstruktor
-    def __init__(self, multipleCameras, multipleWindows):
+    def __init__(self, multipleCameras, multipleWindows, cameraAngle):
         # Definerar ifall vi ska ha flera kameror eller inte
         self.multipleCameras = multipleCameras;
         self.multipleWindows = multipleWindows;
+        self.cameraAngle = cameraAngle;
         
         ogre.FrameListener.__init__(self);
         # Håller koll på om applikationen håller på avslutas
@@ -74,6 +76,7 @@ class Application(ogre.FrameListener):
         self.mainCamera = self.scene.createCamera("MainCamera");
         self.mainCamera.setPosition(0,150,-500);
         self.mainCamera.nearClipDistance = 5;
+        self.mainCamera.setFOVy(45*(math.pi/180.0));
 
         # Ifall vi har flera kameror men bara ett fönster så kan inte viewporten täcka hela fönstret
         if self.multipleCameras and not self.multipleWindows:
@@ -90,7 +93,9 @@ class Application(ogre.FrameListener):
             self.rightCamera = self.scene.createCamera("RightCamera");
             
             self.leftCamera.setPosition(0,150,-500);
+            self.leftCamera.setFOVy(45*(math.pi/180.0));
             self.rightCamera.setPosition(0,150,-500);
+            self.rightCamera.setFOVy(45*(math.pi/180.0));
 
             # Storleken på våra viewports varierad beroende på om vi vill rendera all till ett fönster eller flera 
             if self.multipleWindows:
@@ -110,9 +115,10 @@ class Application(ogre.FrameListener):
 
         # Skapa vårat input-objekt, och ge den en kamera den kan styra
         if self.multipleCameras:
-            self.input = input.Input(self, self.mainWindow, self.mainCamera, self.leftCamera, self.rightCamera);
+            self.input = input.Input(self, self.mainWindow, self.mainCamera,
+                                     self.leftCamera, self.rightCamera, self.cameraAngle);
         else:
-            self.input = input.Input(self, self.mainWindow, self.mainCamera, None, None);
+            self.input = input.Input(self, self.mainWindow, self.mainCamera, None, None, None);
         
         self.input.init();
         # Lägg till detta objekt som en framelistener så vi får callbacks varje frame
@@ -124,6 +130,9 @@ class Application(ogre.FrameListener):
         del self.root;
 
     def frameStarted(self, evt):
+        #if(evt.timeSinceLastFrame != 0):
+        #    fps = 1 / (evt.timeSinceLastFrame);
+        #    print "fps:",fps;
         # Notifiera input-modulen
         self.input.frame(evt);
         
@@ -156,8 +165,8 @@ class Application(ogre.FrameListener):
 if __name__ == '__main__':
     multipleCameras = False; # Definerar ifall vi ska ha flera kameror eller inte
     multipleWindows = False; # Definerar ifall vi ska ha flera fönster eller inte
-
+    cameraAngle = 58;
     
-    app = Application(multipleCameras, multipleWindows);
+    app = Application(multipleCameras, multipleWindows, cameraAngle);
     app.run();
 

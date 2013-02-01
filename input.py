@@ -15,18 +15,18 @@ class Input(OIS.KeyListener):
     angles = [];    # Vinklar i radianer, ett värde per timestep
     velocityx = [];
     velocityz = [];    
-    # Kontruktor
+    # Konstruktor
     #   app     : Objekt för vår huvudapplikation
     #   window  : Objekt för vårat fönster
     #   cameras : En lista med alla kameror i scenen
-    def __init__(self, app, window, mainCamera, leftCamera, rightCamera):
+    def __init__(self, app, window, mainCamera, leftCamera, rightCamera, cameraAngle):
         OIS.KeyListener.__init__(self);
         self.app = app;
         self.window = window;
         self.mainCamera = mainCamera;
         self.leftCamera = leftCamera;
         self.rightCamera = rightCamera;
-        
+        self.cameraAngle = cameraAngle;
 
     def __del__(self):
         self.shutdown();    
@@ -46,7 +46,7 @@ class Input(OIS.KeyListener):
         for row in ws.range('C3:H'+str(self.num_timesteps+2)):
             self.positions.append(ogre.Vector3(row[0].value, 150, row[1].value));
             self.angles.append(math.radians(row[3].value));
-        for row in ws.range('I3:J'+str(self.num_timesteps+2)):
+        for row in ws.range('R3:S'+str(self.num_timesteps+2)):
             self.velocityx.append(row[0].value);
             self.velocityz.append(row[1].value);
 
@@ -78,13 +78,13 @@ class Input(OIS.KeyListener):
         pos = self.positions[index];
         angle = self.angles[index];
 
-        velocityx = abs(self.velocityx[index]);
+        velocityx = ogre.Vector3(self.velocityx[index], 0, 0) * self.mainCamera.getDirection();
         velocityz = self.velocityz[index];
 
         # Beräkna vår rotation utifrån vinklarna vi fått, just nu roterar kameran endast runt Y-axeln
         orientation = ogre.Quaternion(math.pi - angle, (0,1,0));
-        orientationx = ogre.Quaternion((15.0*(velocityx/600.0))*(math.pi/180.0), (1,0,0));
-        orientationz = ogre.Quaternion((15.0*(velocityz/600.0))*(math.pi/180.0), (0,0,1));
+        orientationx = ogre.Quaternion((5.0*(velocityx.length()/400.0))*(math.pi/180.0), (1,0,0));
+        orientationz = ogre.Quaternion((-5.0*(velocityz/1400.0))*(math.pi/180.0), (0,0,1));
 
 
         orientation = orientation * orientationx * orientationz;
@@ -99,14 +99,14 @@ class Input(OIS.KeyListener):
         sqrPt5 = math.sqrt(0.5);
         
         if self.leftCamera != None:
-            leftOrientation = orientation * ogre.Quaternion(sqrPt5, 0, sqrPt5, 0);
+            leftOrientation = orientation * ogre.Quaternion(self.cameraAngle * (math.pi/180.0), (0,1,0));
             self.leftCamera.setOrientation(leftOrientation);
             self.leftCamera.setPosition(pos);
 
         
         # Räkna ut riktning till höger (Ifall vi har en kamera för höger)
         if self.rightCamera != None:
-            rightOrientation = orientation * ogre.Quaternion(sqrPt5, 0, -sqrPt5, 0);
+            rightOrientation = orientation * ogre.Quaternion(-self.cameraAngle * (math.pi/180.0), (0,1,0));
             self.rightCamera.setOrientation(rightOrientation);
             self.rightCamera.setPosition(pos);
         
