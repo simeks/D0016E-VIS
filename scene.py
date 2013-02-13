@@ -35,7 +35,7 @@ class Scene:
         self.rootNode = self.sceneMgr.getRootSceneNode();
 
         # Initialisera fysikvärlden
-        self.physics.init(-10);
+        self.physics.init(-100);
         
         # Skapa en entitet från en mesh-fil vi har bland vår media
         self.entity = self.sceneMgr.createEntity("Sinbad", "robot.mesh");
@@ -52,9 +52,9 @@ class Scene:
         self.node2.setPosition(-800, 570, 10); 
         self.node2.attachObject(self.ent2);
         self.node2.setScale(20, 25, 20);
-
+     
         # Låt tunnan representeras av en sfär i fysikvärlden
-        self.physics.createSphere(self.node2, 20, 10);
+        self.physics.createCylinder(self.node2, 30, 50, 30, 10);
 
         self.ent3 = self.sceneMgr.createEntity("barrel2", "Barrel.mesh");
         self.node3 = self.rootNode.createChildSceneNode("konNode2");
@@ -88,9 +88,12 @@ class Scene:
         self.light.diffuseColour = (0.9,0.9,0.9);
         self.light.direction = (0.5, -0.5, 0.5);
 
-
+        
     def createCamera(self, name):
-        return self.sceneMgr.createCamera(name);
+        camera = self.sceneMgr.createCamera(name);
+        #self.physics.createCamera(camera, 20, 1);
+        return camera;
+        
         
     
     def nextLocation(self):
