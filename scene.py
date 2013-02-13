@@ -1,5 +1,6 @@
 # -*- coding: cp1252 -*-
 import ogre.renderer.OGRE as ogre
+import physics
 
 class Scene:
     # Konstruktor
@@ -17,6 +18,8 @@ class Scene:
         self.walklist.append(ogre.Vector3(-4350, 0, -550))
         self.walklist.append(ogre.Vector3(-3350, 0, 550))
 
+        self.physics = physics.PhysicsWorld();
+
     def __del__(self):
         del self.sceneMgr;
 
@@ -30,6 +33,9 @@ class Scene:
         self.sceneMgr.setAmbientLight(ogre.ColourValue(0.5,0.5,0.5));
         # Eftersom scengrafen är som ett träd så hämtar vi root-noden och bygger utifrån den
         self.rootNode = self.sceneMgr.getRootSceneNode();
+
+        # Initialisera fysikvärlden
+        self.physics.init(-10);
         
         # Skapa en entitet från en mesh-fil vi har bland vår media
         self.entity = self.sceneMgr.createEntity("Sinbad", "robot.mesh");
@@ -43,9 +49,12 @@ class Scene:
 
         self.ent2 = self.sceneMgr.createEntity("barrel", "Barrel.mesh");
         self.node2 = self.rootNode.createChildSceneNode("konNode");
-        self.node2.setPosition(-800, 70, 10); 
+        self.node2.setPosition(-800, 570, 10); 
         self.node2.attachObject(self.ent2);
         self.node2.setScale(20, 25, 20);
+
+        # Låt tunnan representeras av en sfär i fysikvärlden
+        self.physics.createSphere(self.node2, 20, 10);
 
         self.ent3 = self.sceneMgr.createEntity("barrel2", "Barrel.mesh");
         self.node3 = self.rootNode.createChildSceneNode("konNode2");
@@ -54,7 +63,7 @@ class Scene:
         self.node3.setScale(20, 25, 20);
         
         
-        # Lägg till ett stort plan (1000x1000)
+        # Lägg till ett stort plan (20000x20000)
         plane = ogre.Plane((0, 1, 0), 0);
         ogre.MeshManager.getSingleton().createPlane ("Plane", "General", plane, 20000, 20000,
                                                      100, 100, True, 1, 1, 1, (0,0,1));
@@ -62,6 +71,10 @@ class Scene:
         self.planeEntity.setMaterialName("Floor");
         self.planeNode = self.rootNode.createChildSceneNode();
         self.planeNode.attachObject(self.planeEntity);
+
+        # Skapa en representation av marken i fysikvärlden
+        self.physics.createGround(self.planeNode);
+
 
         #
         animationState = self.entity.getAnimationState('Idle')
@@ -98,32 +111,34 @@ class Scene:
 
 
     def frame(self, evt):
-      if self.direction == ogre.Vector3().ZERO:
-         if self.nextLocation():
-            # Set walking animation
-            self.animationStateTop = self.entity.getAnimationState('Walk')
-            self.animationStateTop.setLoop(True)
-            self.animationStateTop.setEnabled(True)
-            #self.animationStateBase = self.entity.getAnimationState('RunBase')
-            #self.animationStateBase.setLoop(True)
-           # self.animationStateBase.setEnabled(True)
-      else:
-         move = self.walkSpeed * evt.timeSinceLastFrame;
-         self.distance -= move
-         if self.distance <= 0.0:
-            self.node.setPosition(self.destination)
-            self.direction = ogre.Vector3().ZERO
-            if not self.nextLocation():
-                # Set Idle animation
-                self.animationStateTop = self.entity.getAnimationState('Idle')
+        # Kör ett steg av fysiksimuleringen
+        self.physics.frame(evt);
+        if self.direction == ogre.Vector3().ZERO:
+            if self.nextLocation():
+                # Set walking animation
+                self.animationStateTop = self.entity.getAnimationState('Walk')
                 self.animationStateTop.setLoop(True)
                 self.animationStateTop.setEnabled(True)
-               # self.animationStateBase = self.entity.getAnimationState('IdleBase')
-               # self.animationStateBase.setLoop(True)
+                #self.animationStateBase = self.entity.getAnimationState('RunBase')
+                #self.animationStateBase.setLoop(True)
                 #self.animationStateBase.setEnabled(True)
-         else:
-            self.node.translate(self.direction * move)
-      self.animationStateTop.addTime(evt.timeSinceLastFrame)
+        else:
+            move = self.walkSpeed * evt.timeSinceLastFrame;
+            self.distance -= move
+            if self.distance <= 0.0:
+                self.node.setPosition(self.destination)
+                self.direction = ogre.Vector3().ZERO
+                if not self.nextLocation():
+                    # Set Idle animation
+                    self.animationStateTop = self.entity.getAnimationState('Idle')
+                    self.animationStateTop.setLoop(True)
+                    self.animationStateTop.setEnabled(True)
+                    #self.animationStateBase = self.entity.getAnimationState('IdleBase')
+                    #self.animationStateBase.setLoop(True)
+                    #self.animationStateBase.setEnabled(True)
+            else:
+                self.node.translate(self.direction * move)
+        self.animationStateTop.addTime(evt.timeSinceLastFrame)
      # self.animationStateBase.addTime(evt.timeSinceLastFrame)
         
     #def shutdown(self):

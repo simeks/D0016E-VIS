@@ -74,7 +74,8 @@ class Application(ogre.FrameListener):
         self.scene.init();
         
         self.mainCamera = self.scene.createCamera("MainCamera");
-        self.mainCamera.setPosition(0,150,-500);
+        self.mainCamera.setPosition(100,100,-500);
+        self.mainCamera.lookAt(-100,100,-500);
         self.mainCamera.nearClipDistance = 5;
         self.mainCamera.setFOVy(45*(math.pi/180.0));
 
