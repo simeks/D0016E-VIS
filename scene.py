@@ -35,7 +35,7 @@ class Scene:
         self.rootNode = self.sceneMgr.getRootSceneNode();
 
         # Initialisera fysikvärlden
-        self.physics.init(-500);
+        self.physics.init(-1000);
         
         # Skapa en entitet från en mesh-fil vi har bland vår media
         self.entity = self.sceneMgr.createEntity("Sinbad", "robot.mesh");
@@ -46,24 +46,28 @@ class Scene:
         self.node.attachObject(self.entity);
         self.node.setScale(10, 10, 10);
 
-        for i in range(0, 100):
-            ent2 = self.sceneMgr.createEntity(str("barrel")+str(i), "Barrel.mesh");
-            node2 = self.rootNode.createChildSceneNode(str("konNode")+str(i));
-            node2.setPosition(-800, 570+(i*50), 10); 
-            node2.attachObject(ent2);
-            node2.setScale(20, 25, 20);            
-            aabb = ent2.getMesh().getBounds();
-            self.physics.createCylinder(node2, 20*aabb.getSize().x, 25*aabb.getSize().y, 20*aabb.getSize().z, 100);
+        for i in range(0, 3):
+            for j in range(0, 3):
+                ent2 = self.sceneMgr.createEntity(str("barrel")+str(i)+str(j), "Barrel.mesh");
+                node2 = self.rootNode.createChildSceneNode(str("konNode")+str(i)+str(j));
+                node2.setPosition(-3000, 120+(i*160), -800+(j*120)); 
+                node2.attachObject(ent2);
+                node2.setScale(20, 25, 20);            
+                aabb = ent2.getMesh().getBounds();
+                self.physics.createCylinder(node2, 20*aabb.getSize().x, (25*aabb.getSize().y)-3, 20*aabb.getSize().z, 200);
 
 
-        self.ent2 = self.sceneMgr.createEntity("barrel", "Barrel.mesh");
-        self.node2 = self.rootNode.createChildSceneNode("konNode");
-        self.node2.setPosition(-800, 570, 10); 
-        self.node2.attachObject(self.ent2);
-        self.node2.setScale(20, 25, 20);
+       # self.ent2 = self.sceneMgr.createEntity("barrel", "Barrel.mesh");
+       # self.node2 = self.rootNode.createChildSceneNode("konNode");
+       # self.node2.setPosition(-800, 150, 10); 
+        #self.node2.attachObject(self.ent2);
+        #self.node2.setScale(20, 25, 20);
      
-        aabb = self.ent2.getMesh().getBounds();
-        self.physics.createCylinder(self.node2, 20*aabb.getSize().x, 25*aabb.getSize().y, 20*aabb.getSize().z, 10);
+      #  aabb = self.ent2.getMesh().getBounds();
+       # self.physics.createCylinder(self.node2, 20*aabb.getSize().x, 25*aabb.getSize().y, 20*aabb.getSize().z, 10);
+
+
+
 
         #self.ent3 = self.sceneMgr.createEntity("barrel2", "Barrel.mesh");
         #self.node3 = self.rootNode.createChildSceneNode("konNode2");

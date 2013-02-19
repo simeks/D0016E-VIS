@@ -30,7 +30,7 @@ class Input(OIS.KeyListener):
         self.app = app;
         self.window = window;
         self.camera = camera
-        self.realInput = True;
+        self.realInput = False;
 
     def __del__(self):
         self.shutdown();    
