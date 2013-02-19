@@ -35,7 +35,7 @@ class Scene:
         self.rootNode = self.sceneMgr.getRootSceneNode();
 
         # Initialisera fysikvärlden
-        self.physics.init(-100);
+        self.physics.init(-500);
         
         # Skapa en entitet från en mesh-fil vi har bland vår media
         self.entity = self.sceneMgr.createEntity("Sinbad", "robot.mesh");
@@ -46,6 +46,15 @@ class Scene:
         self.node.attachObject(self.entity);
         self.node.setScale(10, 10, 10);
 
+        for i in range(0, 100):
+            ent2 = self.sceneMgr.createEntity(str("barrel")+str(i), "Barrel.mesh");
+            node2 = self.rootNode.createChildSceneNode(str("konNode")+str(i));
+            node2.setPosition(-800, 570+(i*50), 10); 
+            node2.attachObject(ent2);
+            node2.setScale(20, 25, 20);            
+            aabb = ent2.getMesh().getBounds();
+            self.physics.createCylinder(node2, 20*aabb.getSize().x, 25*aabb.getSize().y, 20*aabb.getSize().z, 100);
+
 
         self.ent2 = self.sceneMgr.createEntity("barrel", "Barrel.mesh");
         self.node2 = self.rootNode.createChildSceneNode("konNode");
@@ -53,14 +62,14 @@ class Scene:
         self.node2.attachObject(self.ent2);
         self.node2.setScale(20, 25, 20);
      
-        # Låt tunnan representeras av en sfär i fysikvärlden
-        self.physics.createCylinder(self.node2, 30, 50, 30, 10);
+        aabb = self.ent2.getMesh().getBounds();
+        self.physics.createCylinder(self.node2, 20*aabb.getSize().x, 25*aabb.getSize().y, 20*aabb.getSize().z, 10);
 
-        self.ent3 = self.sceneMgr.createEntity("barrel2", "Barrel.mesh");
-        self.node3 = self.rootNode.createChildSceneNode("konNode2");
-        self.node3.setPosition(-4200, 70, -700); 
-        self.node3.attachObject(self.ent3);
-        self.node3.setScale(20, 25, 20);
+        #self.ent3 = self.sceneMgr.createEntity("barrel2", "Barrel.mesh");
+        #self.node3 = self.rootNode.createChildSceneNode("konNode2");
+        #self.node3.setPosition(-4200, 70, -700); 
+        #self.node3.attachObject(self.ent3);
+        #self.node3.setScale(20, 25, 20);
         
         
         # Lägg till ett stort plan (20000x20000)
@@ -91,7 +100,6 @@ class Scene:
         
     def createCamera(self, name):
         camera = self.sceneMgr.createCamera(name);
-        #self.physics.createCamera(camera, 20, 1);
         return camera;
         
         

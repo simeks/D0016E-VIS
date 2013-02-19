@@ -3,6 +3,8 @@ import ogre.renderer.OGRE as ogre
 import ogre.io.OIS as OIS
 import math
 
+import camera
+
 from openpyxl.reader.excel import load_workbook
 
 class Input(OIS.KeyListener):
@@ -23,14 +25,11 @@ class Input(OIS.KeyListener):
     #   app     : Objekt för vår huvudapplikation
     #   window  : Objekt för vårat fönster
     #   cameras : En lista med alla kameror i scenen
-    def __init__(self, app, window, mainCamera, leftCamera, rightCamera, cameraAngle):
+    def __init__(self, app, window, camera):
         OIS.KeyListener.__init__(self);
         self.app = app;
         self.window = window;
-        self.mainCamera = mainCamera;
-        self.leftCamera = leftCamera;
-        self.rightCamera = rightCamera;
-        self.cameraAngle = cameraAngle;
+        self.camera = camera
         self.realInput = True;
 
     def __del__(self):
@@ -72,12 +71,15 @@ class Input(OIS.KeyListener):
         if(self.keyboard):
             self.keyboard.capture();
 
-        pos = self.mainCamera.getPosition();
-        orientation = self.mainCamera.getOrientation();
-
         if(self.realInput):
-            pos += (self.velocity_forward * evt.timeSinceLastFrame) * self.mainCamera.getDirection();
-            self.mainCamera.yaw(self.turn_left * evt.timeSinceLastFrame);
+            pos = self.camera.getPosition();
+            pos += (self.velocity_forward * evt.timeSinceLastFrame) * (self.camera.getOrientation() * ogre.Vector3(0,0,-1));
+            orientation = self.camera.getOrientation();
+            if(self.turn_left != 0):
+                yaw = ogre.Quaternion(self.turn_left * evt.timeSinceLastFrame, (0, 1, 0));
+                orientation = orientation * yaw;
+            
+            self.camera.update(pos, orientation, ogre.Vector3(0,0,0));
 
         else:
             # Ifall tiden har gått utanför våran data så startar vi bara om från t=0 igen
@@ -90,39 +92,14 @@ class Input(OIS.KeyListener):
             # Hämta ut datan för just det timesteppet
             pos = self.positions[index];
             angle = self.angles[index];
-
-            velocityx = ogre.Vector3(self.velocityx[index], 0, 0) * self.mainCamera.getDirection();
+            orientation = ogre.Quaternion(math.pi - angle, (0,1,0));
+            
+            velocityx = self.velocityx[index];
             velocityz = self.velocityz[index];
 
-            # Beräkna vår rotation utifrån vinklarna vi fått, just nu roterar kameran endast runt Y-axeln
-            orientation = ogre.Quaternion(math.pi - angle, (0,1,0));
-            orientationx = ogre.Quaternion((5.0*(velocityx.length()/400.0))*(math.pi/180.0), (1,0,0));
-            orientationz = ogre.Quaternion((-5.0*(velocityz/1400.0))*(math.pi/180.0), (0,0,1));
+            self.camera.update(pos, orientation, ogre.Vector3(velocityx, 0, velocityz));
 
 
-            orientation = orientation * orientationx * orientationz;
-            self.mainCamera.setOrientation(orientation);
-            
-        # Uppdatera kameran
-
-        # Rakt fram
-        self.mainCamera.setPosition(pos);
-
-        # Räkna ut riktning till vänster (Ifall vi har en kamera för vänster)
-        sqrPt5 = math.sqrt(0.5);
-            
-        if self.leftCamera != None:
-            leftOrientation = orientation * ogre.Quaternion(self.cameraAngle * (math.pi/180.0), (0,1,0));
-            self.leftCamera.setOrientation(leftOrientation);
-            self.leftCamera.setPosition(pos);
-
-            
-        # Räkna ut riktning till höger (Ifall vi har en kamera för höger)
-        if self.rightCamera != None:
-            rightOrientation = orientation * ogre.Quaternion(-self.cameraAngle * (math.pi/180.0), (0,1,0));
-            self.rightCamera.setOrientation(rightOrientation);
-            self.rightCamera.setPosition(pos);
-        
         
     def keyPressed(self, evt):
         if(self.realInput):

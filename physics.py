@@ -2,6 +2,8 @@
 import ogre.renderer.OGRE as ogre
 import ogre.physics.bullet as bullet
 
+import camera;
+
 class NodeMotionState(bullet.btMotionState):
     def __init__(self, sceneNode):
         bullet.btMotionState.__init__(self);
@@ -21,28 +23,6 @@ class NodeMotionState(bullet.btMotionState):
             ogre.Quaternion(rot.w(), rot.x(), rot.y(), rot.z()));
         pos = worldTrans.getOrigin();
         self.sceneNode.setPosition(pos.x(), pos.y(), pos.z());
-
-
-class CameraMotionState(bullet.btMotionState):
-    def __init__(self, camera):
-        bullet.btMotionState.__init__(self);
-        self.camera = camera;
-
-    def getWorldTransform(self, worldTrans):
-        pos = self.camera.getPosition();
-        rot = self.camera.getOrientation();
-        print "Camera pos",pos.x,pos.y,pos.z;
-        worldTrans.setOrigin(bullet.btVector3(pos.x, pos.y, pos.z));
-        worldTrans.setRotation(bullet.btQuaternion(rot.x, rot.y, rot.z, rot.w));
-
- 
-    def setWorldTransform(self, worldTrans):
-        rot = worldTrans.getRotation();
-        self.camera.setOrientation(
-            ogre.Quaternion(rot.w(), rot.x(), rot.y(), rot.z()));
-        pos = worldTrans.getOrigin();
-        self.camera.setPosition(pos.x(), pos.y(), pos.z());
-        print "Camera set pos",pos.x(),pos.y(),pos.z();
 
         
 class PhysicsWorld:
@@ -126,12 +106,13 @@ class PhysicsWorld:
         self.bodies.append(PhysicsWorld.Body(shape, motionState, constructInfo, rigidBody));
         self.world.addRigidBody(rigidBody);
         
-    def createCamera(self, camera, radius, mass):
+    def createCameraBody(self, camera, radius, mass):
         pos = camera.getPosition();
         rot = camera.getOrientation();
         
         # Skapa motion state
-        motionState = CameraMotionState(camera);
+        motionState = bullet.btDefaultMotionState(bullet.btTransform(
+            bullet.btQuaternion(0,0,0,1), bullet.btVector3(pos.x,pos.y,pos.z)));
 
         sphereShape = bullet.btSphereShape(radius);
         inertia = bullet.btVector3(0,0,0);
@@ -143,6 +124,8 @@ class PhysicsWorld:
 
         self.bodies.append(PhysicsWorld.Body(sphereShape, motionState, constructInfo, rigidBody));
         self.world.addRigidBody(rigidBody);
+        return rigidBody;
+        
 
     def frame(self, evt):
         self.world.stepSimulation(evt.timeSinceLastFrame);
