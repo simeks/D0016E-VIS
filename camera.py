@@ -11,11 +11,12 @@ class Camera:
     turn_left = 0;
     rigidBody = None;
     
-    def __init__(self, app, scene, multipleCameras, multipleWindows):
+    def __init__(self, app, scene, multipleCameras, multipleWindows, cameraAngle):
         self.application = app;
         self.scene = scene;
         self.multipleCameras = multipleCameras;
         self.multipleWindows = multipleWindows;
+        self.cameraAngle = cameraAngle;
         
         self.mainCamera = self.scene.createCamera("MainCamera");
         self.mainCamera.setPosition(100,100,-500);
@@ -77,7 +78,7 @@ class Camera:
         self.mainCamera.setPosition(pos);
 
 
-        if self.multipleWindows:
+        if self.multipleCameras:
             # Räkna ut riktning till vänster (Ifall vi har en kamera för vänster)
             sqrPt5 = math.sqrt(0.5);
             

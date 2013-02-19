@@ -74,7 +74,7 @@ class Application(ogre.FrameListener):
         self.scene = scene.Scene(self.root);
         self.scene.init();
         
-        self.camera = camera.Camera(self, self.scene, self.multipleCameras, self.multipleWindows);
+        self.camera = camera.Camera(self, self.scene, self.multipleCameras, self.multipleWindows, self.cameraAngle);
         self.input = input.Input(self, self.mainWindow, self.camera);
 
         self.input.init();
@@ -120,8 +120,8 @@ class Application(ogre.FrameListener):
         return (self.isStopping == False);
     
 if __name__ == '__main__':
-    multipleCameras = False; # Definerar ifall vi ska ha flera kameror eller inte
-    multipleWindows = False; # Definerar ifall vi ska ha flera fönster eller inte
+    multipleCameras = True; # Definerar ifall vi ska ha flera kameror eller inte
+    multipleWindows = True; # Definerar ifall vi ska ha flera fönster eller inte
     cameraAngle = 58;
     
     app = Application(multipleCameras, multipleWindows, cameraAngle);
