@@ -1,9 +1,8 @@
 D0016E-VIS
 ==========
 
-Visualization project, course D0016E
+Command-line arguments:
+--multi-camera		: Specifies that the application should render three cameras.
+--multi-window		: Specifies that the application should render to multiple windows.
+--camera-angle		: Specifies the angle between for the left and right camera. (Default: 58)
 
-*World Generation - Yugge
-*Textures - Tobias
-*Models - Dennis
-*Camera - Simon, Johan

@@ -6,6 +6,8 @@ import camera
 
 import math
 
+from optparse import OptionParser;
+
 class Application(ogre.FrameListener):
     # Konstruktor
     def __init__(self, multipleCameras, multipleWindows, cameraAngle):
@@ -120,9 +122,16 @@ class Application(ogre.FrameListener):
         return (self.isStopping == False);
     
 if __name__ == '__main__':
-    multipleCameras = True; # Definerar ifall vi ska ha flera kameror eller inte
-    multipleWindows = True; # Definerar ifall vi ska ha flera fönster eller inte
-    cameraAngle = 58;
+    parser = OptionParser();
+    parser.add_option("--multi-camera", action="store_true", dest="multicamera", default=False);
+    parser.add_option("--multi-window", action="store_true", dest="multiwindow", default=False);
+    parser.add_option("--camera-angle", action="store", type="int", dest="angle", default=58);
+
+    (options, args) = parser.parse_args();
+    
+    multipleCameras = options.multicamera; # Definerar ifall vi ska ha flera kameror eller inte
+    multipleWindows = options.multiwindow; # Definerar ifall vi ska ha flera fönster eller inte
+    cameraAngle = options.angle;
     
     app = Application(multipleCameras, multipleWindows, cameraAngle);
     app.run();
