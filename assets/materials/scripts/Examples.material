@@ -7,11 +7,29 @@ material Floor
 			texture_unit
 			{
 				scale 0.05 0.05
-				texture terr_rock-dirt.jpg
+				texture snow_1024.jpg
 			}
 		}
 	}
 }
+
+material Road
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				mipmap_bias -4
+				filtering trilinear
+				scale 1.0 0.05
+				texture road1.dds
+			}
+		}
+	}
+}
+
 material RustyBarrel
 {
 	technique

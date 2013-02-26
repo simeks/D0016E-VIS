@@ -9,10 +9,11 @@ from openpyxl.reader.excel import load_workbook
 
 class Input(OIS.KeyListener):
 
-    num_timesteps = 1001;   # Antalet timesteps
-    timestep = 0.01;        # Sekunder per timestep
+    num_timesteps = 75;   # Antalet timesteps
+    timestep = 0.25;        # Sekunder per timestep
     total_time = 0;         # Totala tiden i vår animation, startar om när vi gått igenom all data
 
+    accelerations = []
     positions = []; # Positioner, ett värde per timestep
     angles = [];    # Vinklar i radianer, ett värde per timestep
     velocityx = [];
@@ -31,7 +32,8 @@ class Input(OIS.KeyListener):
         self.window = window;
         self.camera = camera
         self.realInput = False;
-
+        self.velocity = ogre.Vector3(0, 0, 0);
+        self.position = ogre.Vector3(0, 200, 0);
     def __del__(self):
         self.shutdown();    
 
@@ -47,12 +49,11 @@ class Input(OIS.KeyListener):
         # Ladda in data från vårat excel-dokument
         self.wb = load_workbook(filename = r'assets/indata.xlsx');
         ws = self.wb.get_active_sheet();
-        for row in ws.range('C3:H'+str(self.num_timesteps+2)):
-            self.positions.append(ogre.Vector3(row[0].value, 150, row[1].value));
-            self.angles.append(math.radians(row[3].value));
-        for row in ws.range('R3:S'+str(self.num_timesteps+2)):
-            self.velocityx.append(row[0].value);
-            self.velocityz.append(row[1].value);
+        for row in ws.range('D3:F'+str(self.num_timesteps+2)):
+            #self.positions.append(ogre.Vector3(row[0].value, 150, row[1].value));
+            self.angles.append(ogre.Vector3(row[0].value, row[1].value, row[2].value));
+        for row in ws.range('A3:C'+str(self.num_timesteps+2)):
+            self.accelerations.append(0.01*ogre.Vector3(row[0].value, row[1].value, row[2].value));
 
 
     def shutdown(self):
@@ -89,25 +90,31 @@ class Input(OIS.KeyListener):
             # Räkna ut närmaste timestep
             index = int(round(self.total_time/self.timestep));
 
-            # Hämta ut datan för just det timesteppet
-            pos = self.positions[index];
-            angle = self.angles[index];
-            orientation = ogre.Quaternion(math.pi - angle, (0,1,0));
+            self.velocity += self.accelerations[index] * self.timestep;
+            self.position += self.velocity * self.timestep;
             
-            velocityx = self.velocityx[index];
-            velocityz = self.velocityz[index];
+            # Hämta ut datan för just det timesteppet
+            #pos = self.positions[index];
+            angle = self.angles[index];
+            orientationx = ogre.Quaternion(0, (1,0,0));
+            orientationy = ogre.Quaternion((math.pi/2)+angle.z * (math.pi/180.0), (0,1,0));
+            orientationz = ogre.Quaternion(0, (0,0,1));
 
-            self.camera.update(pos, orientation, ogre.Vector3(velocityx, 0, velocityz));
+            orientation = orientationx * orientationy * orientationz;
+            #velocityx = self.velocityx[index];
+            #velocityz = self.velocityz[index];
+
+            self.camera.update(self.position, orientation, self.velocity);
 
 
         
     def keyPressed(self, evt):
         if(self.realInput):
             if(evt.key == OIS.KC_UP):
-                self.velocity_forward = 500;
+                self.velocity_forward = 1000;
                 
             if(evt.key == OIS.KC_DOWN):
-                self.velocity_forward = -500;
+                self.velocity_forward = -1000;
                 
             if(evt.key == OIS.KC_LEFT):
                 self.turn_left = 1.0;
