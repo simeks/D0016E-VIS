@@ -18,7 +18,7 @@ class OutSimListener(asyncore.dispatcher):
     def __init__(self, port, packetCallback):
         asyncore.dispatcher.__init__(self);
         self.create_socket(socket.AF_INET, socket.SOCK_DGRAM);
-        self.bind(("127.0.0.1", port));
+        self.bind(("0.0.0.0", port));
         self.packetCallback = packetCallback;
 
     #def handle_connect(self):
@@ -95,24 +95,26 @@ class Input(OIS.KeyListener):
     
     def outsim_handler(self, packet):
         if(self.started == False):
-            self.position = ogre.Vector3(0,0,0);
+            self.position = ogre.Vector3(0,100,0);
             # Bestäm ett offset så att körningen alltid startar på (0, 0, 0)
             self.offsetPos = ogre.Vector3(0 - packet.Pos[0], 0 - packet.Pos[2], 0 - packet.Pos[1]);
             self.started = True;
 
 
-        scale = 0.0005;
-        self.position.x += packet.Vel[0]*scale;
-        self.position.z += packet.Vel[1]*scale;
+        scale = 0.0008;
         quatx = ogre.Quaternion(0, (1,0,0));
         quaty = ogre.Quaternion(packet.Heading, (0,1,0));
         quatz = ogre.Quaternion(0, (0,0,1));
         quat = quatx * quaty * quatz;
 
-        pos = ogre.Vector3((self.offsetPos.x + packet.Pos[0])*scale, 100,
+        velocity = ogre.Vector3(packet.Vel[0], 0, packet.Vel[1]);
+        #velocity = quat * velocity;
+        #self.position += velocity*scale;
+
+        self.position = ogre.Vector3((self.offsetPos.x + packet.Pos[0])*scale, 100,
                          (self.offsetPos.z - packet.Pos[1])*scale);
         
-        self.camera.update(pos, quaty, ogre.Vector3());
+        self.camera.update(self.position, quaty, velocity);
 
     # Denna anropas från vårat applikations-objekt en gång varje frame så att vi får
     # en chans att göra saker som att läsa indata eller flytta kameran
