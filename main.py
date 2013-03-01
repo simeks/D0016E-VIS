@@ -2,8 +2,11 @@
 import ogre.renderer.OGRE as ogre
 import input
 import scene
+import camera
 
 import math
+
+from optparse import OptionParser;
 
 class Application(ogre.FrameListener):
     # Konstruktor
@@ -73,54 +76,9 @@ class Application(ogre.FrameListener):
         self.scene = scene.Scene(self.root);
         self.scene.init();
         
-        self.mainCamera = self.scene.createCamera("MainCamera");
-        self.mainCamera.setPosition(100,100,-500);
-        self.mainCamera.lookAt(-100,100,-500);
-        self.mainCamera.nearClipDistance = 5;
-        self.mainCamera.setFOVy(45*(math.pi/180.0));
+        self.camera = camera.Camera(self, self.scene, self.multipleCameras, self.multipleWindows, self.cameraAngle);
+        self.input = input.Input(self, self.mainWindow, self.camera);
 
-        # Ifall vi har flera kameror men bara ett fönster så kan inte viewporten täcka hela fönstret
-        if self.multipleCameras and not self.multipleWindows:
-            inv3 = 1.0/3.0;
-            self.mainViewport = self.mainWindow.addViewport(self.mainCamera, 0, inv3, inv3, inv3, inv3);
-        else:
-            self.mainViewport = self.mainWindow.addViewport(self.mainCamera);
-
-        self.mainViewport.setBackgroundColour(ogre.ColourValue(0.2,0.2,0.2)); # Mörkgrå bakgrund
-
-        # Skapa kameror för höger och vänster ifall vi ska använda flera kameror
-        if self.multipleCameras:
-            self.leftCamera = self.scene.createCamera("LeftCamera");
-            self.rightCamera = self.scene.createCamera("RightCamera");
-            
-            self.leftCamera.setPosition(0,150,-500);
-            self.leftCamera.setFOVy(45*(math.pi/180.0));
-            self.rightCamera.setPosition(0,150,-500);
-            self.rightCamera.setFOVy(45*(math.pi/180.0));
-
-            # Storleken på våra viewports varierad beroende på om vi vill rendera all till ett fönster eller flera 
-            if self.multipleWindows:
-                self.leftViewport = self.leftWindow.addViewport(self.leftCamera);
-                self.rightViewport = self.rightWindow.addViewport(self.rightCamera);
-            else:
-                inv3 = 1.0/3.0;
-                self.leftViewport = self.mainWindow.addViewport(self.leftCamera, 1, 0, inv3, inv3, inv3);
-                self.rightViewport = self.mainWindow.addViewport(self.rightCamera, 2, 2*inv3, inv3, inv3, inv3);
-                
-            self.leftViewport.setBackgroundColour(ogre.ColourValue(0.2,0.2,0.2)); # Mörkgrå bakgrund                
-            self.rightViewport.setBackgroundColour(ogre.ColourValue(0.2,0.2,0.2)); # Mörkgrå bakgrund
-            self.leftCamera.nearClipDistance = 5;
-            self.rightCamera.nearClipDistance = 5;
-
-        
-
-        # Skapa vårat input-objekt, och ge den en kamera den kan styra
-        if self.multipleCameras:
-            self.input = input.Input(self, self.mainWindow, self.mainCamera,
-                                     self.leftCamera, self.rightCamera, self.cameraAngle);
-        else:
-            self.input = input.Input(self, self.mainWindow, self.mainCamera, None, None, None);
-        
         self.input.init();
         # Lägg till detta objekt som en framelistener så vi får callbacks varje frame
         self.root.addFrameListener(self); 
@@ -164,9 +122,16 @@ class Application(ogre.FrameListener):
         return (self.isStopping == False);
     
 if __name__ == '__main__':
-    multipleCameras = False; # Definerar ifall vi ska ha flera kameror eller inte
-    multipleWindows = False; # Definerar ifall vi ska ha flera fönster eller inte
-    cameraAngle = 58;
+    parser = OptionParser();
+    parser.add_option("--multi-camera", action="store_true", dest="multicamera", default=False);
+    parser.add_option("--multi-window", action="store_true", dest="multiwindow", default=False);
+    parser.add_option("--camera-angle", action="store", type="int", dest="angle", default=58);
+
+    (options, args) = parser.parse_args();
+    
+    multipleCameras = options.multicamera; # Definerar ifall vi ska ha flera kameror eller inte
+    multipleWindows = options.multiwindow; # Definerar ifall vi ska ha flera fönster eller inte
+    cameraAngle = options.angle;
     
     app = Application(multipleCameras, multipleWindows, cameraAngle);
     app.run();

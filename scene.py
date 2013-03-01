@@ -31,11 +31,14 @@ class Scene:
         self.sceneMgr.setSkyDome (True, "Examples/CloudySky", 24, 16, 50000)
         # Sätt så vi får ett ambient light som lyser upp scenen
         self.sceneMgr.setAmbientLight(ogre.ColourValue(0.5,0.5,0.5));
+        fadeColor = ogre.ColourValue(0.9, 0.9, 0.9);
+        self.sceneMgr.setFog(ogre.FOG_LINEAR, fadeColor, 0.0, 10000, 80000);
+        
         # Eftersom scengrafen är som ett träd så hämtar vi root-noden och bygger utifrån den
         self.rootNode = self.sceneMgr.getRootSceneNode();
 
         # Initialisera fysikvärlden
-        self.physics.init(-10);
+        self.physics.init(-1000);
         
         # Skapa en entitet från en mesh-fil vi har bland vår media
         self.entity = self.sceneMgr.createEntity("Sinbad", "robot.mesh");
@@ -46,21 +49,44 @@ class Scene:
         self.node.attachObject(self.entity);
         self.node.setScale(10, 10, 10);
 
+        #for i in range(0, 3):
+        #    for j in range(0, 3):
+        #        ent2 = self.sceneMgr.createEntity(str("barrel")+str(i)+str(j), "Barrel.mesh");
+        #        node2 = self.rootNode.createChildSceneNode(str("konNode")+str(i)+str(j));
+        #        node2.setPosition(-3000, 120+(i*160), -800+(j*120)); 
+        #        node2.attachObject(ent2);
+        #        node2.setScale(20, 25, 20);            
+        #        aabb = ent2.getMesh().getBounds();
+        #        self.physics.createCylinder(node2, 20*aabb.getSize().x, (25*aabb.getSize().y)-3, 20*aabb.getSize().z, 200);
 
-        self.ent2 = self.sceneMgr.createEntity("barrel", "Barrel.mesh");
-        self.node2 = self.rootNode.createChildSceneNode("konNode");
-        self.node2.setPosition(-800, 570, 10); 
-        self.node2.attachObject(self.ent2);
-        self.node2.setScale(20, 25, 20);
 
-        # Låt tunnan representeras av en sfär i fysikvärlden
-        self.physics.createSphere(self.node2, 20, 10);
+        for j in range(0, 10):
+            ent2 = self.sceneMgr.createEntity(str("barrel")+str(j), "Barrel.mesh");
+            node2 = self.rootNode.createChildSceneNode(str("konNode")+str(j));
+            node2.setPosition(-3000, 120+(j*160), -800+(j*10)); 
+            node2.attachObject(ent2);
+            node2.setScale(20, 25, 20);            
+            aabb = ent2.getMesh().getBounds();
+            self.physics.createCylinder(node2, 20*aabb.getSize().x, (25*aabb.getSize().y)-3, 20*aabb.getSize().z, 200);
 
-        self.ent3 = self.sceneMgr.createEntity("barrel2", "Barrel.mesh");
-        self.node3 = self.rootNode.createChildSceneNode("konNode2");
-        self.node3.setPosition(-4200, 70, -700); 
-        self.node3.attachObject(self.ent3);
-        self.node3.setScale(20, 25, 20);
+
+       # self.ent2 = self.sceneMgr.createEntity("barrel", "Barrel.mesh");
+       # self.node2 = self.rootNode.createChildSceneNode("konNode");
+       # self.node2.setPosition(-800, 150, 10); 
+        #self.node2.attachObject(self.ent2);
+        #self.node2.setScale(20, 25, 20);
+     
+      #  aabb = self.ent2.getMesh().getBounds();
+       # self.physics.createCylinder(self.node2, 20*aabb.getSize().x, 25*aabb.getSize().y, 20*aabb.getSize().z, 10);
+
+
+
+
+        #self.ent3 = self.sceneMgr.createEntity("barrel2", "Barrel.mesh");
+        #self.node3 = self.rootNode.createChildSceneNode("konNode2");
+        #self.node3.setPosition(-4200, 70, -700); 
+        #self.node3.attachObject(self.ent3);
+        #self.node3.setScale(20, 25, 20);
         
         
         # Lägg till ett stort plan (20000x20000)
@@ -76,6 +102,16 @@ class Scene:
         self.physics.createGround(self.planeNode);
 
 
+        # Vägen
+        ogre.MeshManager.getSingleton().createPlane ("Road", "General", plane, 1000, 20000,
+                                                     100, 100, True, 1, 1, 1, (1,0,0));
+        self.roadEntity = self.sceneMgr.createEntity("Road", "Road");
+        self.roadEntity.setMaterialName("Road");
+        self.roadNode = self.rootNode.createChildSceneNode();
+        self.roadNode.attachObject(self.roadEntity);
+        self.roadNode.setPosition(0,1,0);
+
+
         #
         animationState = self.entity.getAnimationState('Idle')
         animationState.setLoop(True)
@@ -88,9 +124,11 @@ class Scene:
         self.light.diffuseColour = (0.9,0.9,0.9);
         self.light.direction = (0.5, -0.5, 0.5);
 
-
+        
     def createCamera(self, name):
-        return self.sceneMgr.createCamera(name);
+        camera = self.sceneMgr.createCamera(name);
+        return camera;
+        
         
     
     def nextLocation(self):
