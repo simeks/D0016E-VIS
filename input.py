@@ -2,22 +2,48 @@
 import ogre.renderer.OGRE as ogre
 import ogre.io.OIS as OIS
 import math
+import pyinsim
+import time
+import Queue
+import threading
+import socket
+import select
+import asyncore
+from threading import Thread
+
 
 import camera
 
-from openpyxl.reader.excel import load_workbook
+class OutSimListener(asyncore.dispatcher):
+    def __init__(self, port, packetCallback):
+        asyncore.dispatcher.__init__(self);
+        self.create_socket(socket.AF_INET, socket.SOCK_DGRAM);
+        self.bind(("127.0.0.1", port));
+        self.packetCallback = packetCallback;
+
+    #def handle_connect(self):
+       
+    def handle_close(self):
+        self.close()
+
+    def handle_read(self):
+        data = self.recv(512)
+        if(data == None):
+            return;
+        packet = pyinsim.OutSimPack();
+        packet.unpack(data);
+        if(self.packetCallback != None):
+            self.packetCallback(packet);
+        
+
+    # Actually sends the message if there was something in the buffer.
+    #def handle_write(self):
 
 class Input(OIS.KeyListener):
 
     num_timesteps = 75;   # Antalet timesteps
     timestep = 0.25;        # Sekunder per timestep
     total_time = 0;         # Totala tiden i vår animation, startar om när vi gått igenom all data
-
-    accelerations = []
-    positions = []; # Positioner, ett värde per timestep
-    angles = [];    # Vinklar i radianer, ett värde per timestep
-    velocityx = [];
-    velocityz = [];
 
     velocity_forward = 0;
     turn_left = 0;
@@ -33,7 +59,11 @@ class Input(OIS.KeyListener):
         self.camera = camera
         self.realInput = False;
         self.velocity = ogre.Vector3(0, 0, 0);
-        self.position = ogre.Vector3(0, 200, 0);
+        self.position = ogre.Vector3(0, 100, 0);
+        self.lastTime = 0;
+        self.started = False;
+
+        
     def __del__(self):
         self.shutdown();    
 
@@ -46,14 +76,13 @@ class Input(OIS.KeyListener):
         self.keyboard = self.inputSystem.createInputObjectKeyboard(OIS.OISKeyboard,True);
         # Lägg detta objekt för callbacks 
         self.keyboard.setEventCallback(self);
-        # Ladda in data från vårat excel-dokument
-        self.wb = load_workbook(filename = r'assets/indata.xlsx');
-        ws = self.wb.get_active_sheet();
-        for row in ws.range('D3:F'+str(self.num_timesteps+2)):
-            #self.positions.append(ogre.Vector3(row[0].value, 150, row[1].value));
-            self.angles.append(ogre.Vector3(row[0].value, row[1].value, row[2].value));
-        for row in ws.range('A3:C'+str(self.num_timesteps+2)):
-            self.accelerations.append(0.01*ogre.Vector3(row[0].value, row[1].value, row[2].value));
+
+        self.server = OutSimListener(13336, self.outsim_handler);
+
+        #insim = pyinsim.insim_init('130.240.5.130', 13337, UDPPort=13338)
+        #insim.bind_event(pyinsim.EVT_OUTSIM, self.outsim_handler);
+        #pyinsim.outsim_init('127.0.0.1', 13338, self.outsim_handler, 30.0)
+        #pyinsim.main_loop(True)
 
 
     def shutdown(self):
@@ -63,6 +92,28 @@ class Input(OIS.KeyListener):
         OIS.InputManager.destroyInputSystem(self.inputSystem);
         self.inputSystem = 0;
 
+    
+    def outsim_handler(self, packet):
+        if(self.started == False):
+            self.position = ogre.Vector3(0,0,0);
+            # Bestäm ett offset så att körningen alltid startar på (0, 0, 0)
+            self.offsetPos = ogre.Vector3(0 - packet.Pos[0], 0 - packet.Pos[2], 0 - packet.Pos[1]);
+            self.started = True;
+
+
+        scale = 0.0005;
+        self.position.x += packet.Vel[0]*scale;
+        self.position.z += packet.Vel[1]*scale;
+        quatx = ogre.Quaternion(0, (1,0,0));
+        quaty = ogre.Quaternion(packet.Heading, (0,1,0));
+        quatz = ogre.Quaternion(0, (0,0,1));
+        quat = quatx * quaty * quatz;
+
+        pos = ogre.Vector3((self.offsetPos.x + packet.Pos[0])*scale, 100,
+                         (self.offsetPos.z - packet.Pos[1])*scale);
+        
+        self.camera.update(pos, quaty, ogre.Vector3());
+
     # Denna anropas från vårat applikations-objekt en gång varje frame så att vi får
     # en chans att göra saker som att läsa indata eller flytta kameran
     #   evt     : FrameEvent, samma data som kommer i Ogre::FrameListener::frameStarted
@@ -71,6 +122,11 @@ class Input(OIS.KeyListener):
         # Läs in input-data
         if(self.keyboard):
             self.keyboard.capture();
+
+        # Behandla all inkommande data
+        asyncore.loop(count = 1);
+                    
+            
 
         if(self.realInput):
             pos = self.camera.getPosition();
@@ -83,6 +139,10 @@ class Input(OIS.KeyListener):
             self.camera.update(pos, orientation, ogre.Vector3(0,0,0));
 
         else:
+            #packet = packetQueue.get();
+
+            #self.camera.update(ogre.Vector3(packet.Pos[0],packet.Pos[2],packet.Pos[1], ogre.Quaternion(), ogre.Vector3()));
+            
             # Ifall tiden har gått utanför våran data så startar vi bara om från t=0 igen
             if(self.total_time > ((self.num_timesteps-1) * self.timestep)):
                 self.total_time = 0;
@@ -90,21 +150,8 @@ class Input(OIS.KeyListener):
             # Räkna ut närmaste timestep
             index = int(round(self.total_time/self.timestep));
 
-            self.velocity += self.accelerations[index] * self.timestep;
-            self.position += self.velocity * self.timestep;
-            
-            # Hämta ut datan för just det timesteppet
-            #pos = self.positions[index];
-            angle = self.angles[index];
-            orientationx = ogre.Quaternion(0, (1,0,0));
-            orientationy = ogre.Quaternion((math.pi/2)+angle.z * (math.pi/180.0), (0,1,0));
-            orientationz = ogre.Quaternion(0, (0,0,1));
 
-            orientation = orientationx * orientationy * orientationz;
-            #velocityx = self.velocityx[index];
-            #velocityz = self.velocityz[index];
-
-            self.camera.update(self.position, orientation, self.velocity);
+            #self.camera.update(self.position, orientation, self.velocity);
 
 
         

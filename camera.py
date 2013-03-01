@@ -64,12 +64,12 @@ class Camera:
 
 
     def update(self, pos, orientation, velocity):
-        self.orientation = orientation;
+        #self.orientation = orientation;
         
-        orientationx = ogre.Quaternion((5.0*(velocity.x/400.0))*(math.pi/180.0), (1,0,0));
-        orientationz = ogre.Quaternion((-5.0*(velocity.z/1400.0))*(math.pi/180.0), (0,0,1));        
+        #orientationx = ogre.Quaternion((5.0*(velocity.x/400.0))*(math.pi/180.0), (1,0,0));
+        #orientationz = ogre.Quaternion((-5.0*(velocity.z/1400.0))*(math.pi/180.0), (0,0,1));        
 
-        orientation = orientation * orientationx * orientationz;
+        #orientation = orientation * orientationx * orientationz;
         self.mainCamera.setOrientation(orientation);
 
         if(self.rigidBody != None):
