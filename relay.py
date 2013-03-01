@@ -17,7 +17,6 @@ def pack_outsimpacket(packet):
 def outsim_handler(outsim, packet):
     if(outSocket != None):
         outSocket.sendto(pack_outsimpacket(packet), (IP, PORT));
-        print vars(packet);
 
 
 
