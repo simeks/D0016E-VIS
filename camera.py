@@ -7,8 +7,7 @@ import math
 
 class Camera:
 
-    velocity_forward = 0;
-    turn_left = 0;
+    velocity = ogre.Vector3(0,0,0);
     rigidBody = None;
     
     def __init__(self, app, scene, multipleCameras, multipleWindows, cameraAngle):
@@ -26,7 +25,7 @@ class Camera:
 
         self.orientation = self.mainCamera.getOrientation();
         
-        self.rigidBody = self.scene.physics.createCameraBody(self, 150, 0);
+        self.rigidBody = self.scene.physics.createCameraBody(self, 150, 20);
 
 
         # Ifall vi har flera kameror men bara ett fönster så kan inte viewporten täcka hela fönstret
@@ -63,10 +62,18 @@ class Camera:
             self.rightCamera.nearClipDistance = 5;
 
 
-    def update(self, pos, orientation, acceleration):
+    def update(self, pos, orientation, acceleration, velocity):
+        if(self.rigidBody != None):
+            self.rigidBody.proceedToTransform(bullet.btTransform(bullet.btQuaternion(), bullet.btVector3(pos.x,pos.y,pos.z)));
+            #self.rigidBody.applyForce(physics.toBtVector3(acceleration), physics.toBtVector3(pos));
+            transform = bullet.btTransform();
 
+            self.rigidBody.getMotionState().getWorldTransform(transform);
+            #print transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z();
+            
         self.orientation = orientation;
         acceleration = orientation * acceleration;
+        self.velocity = orientation*velocity;
 
         orientationx = ogre.Quaternion((5.0*(acceleration.z*0.001))*(math.pi/180.0), (1,0,0));
         orientationz = ogre.Quaternion((5.0*(acceleration.x*0.001))*(math.pi/180.0), (0,0,1));        
@@ -74,9 +81,7 @@ class Camera:
         orientation = orientation * orientationx * orientationz;
         self.mainCamera.setOrientation(orientation);
 
-        if(self.rigidBody != None):
-            self.rigidBody.proceedToTransform(bullet.btTransform(bullet.btQuaternion(), bullet.btVector3(pos.x,pos.y,pos.z)));
-
+            
         self.mainCamera.setPosition(pos);
 
 
@@ -95,6 +100,9 @@ class Camera:
 
     def getPosition(self):
         return self.mainCamera.getPosition();
+
+    def getVelocity(self):
+        return self.velocity;
 
     def getOrientation(self):
         return self.orientation;

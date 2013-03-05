@@ -106,7 +106,7 @@ class Input(OIS.KeyListener):
             delta = packet.Time - self.lastPacket;
             self.lastPacket = packet.Time;
 
-            acceleration = ogre.Vector3(packet.Accel[0], 0, packet.Accel[1]) * delta;
+            acceleration = ogre.Vector3(packet.Accel[0], 0, packet.Accel[1]) * 100;
             
         self.position = ogre.Vector3(packet.Pos[0]*scale,100,packet.Pos[1]*scale);
         self.position = self.offsetPos + self.position;
@@ -121,7 +121,8 @@ class Input(OIS.KeyListener):
                           (self.offsetPos.z - packet.Pos[1])*scale);
 
 
-        self.camera.update(self.position, quaty, acceleration);
+        velocity = ogre.Vector3(packet.Vel[0],0,packet.Vel[1]);
+        self.camera.update(self.position, quaty, acceleration, velocity);
 
     # Denna anropas från vårat applikations-objekt en gång varje frame så att vi får
     # en chans att göra saker som att läsa indata eller flytta kameran

@@ -85,7 +85,8 @@ class Application(ogre.FrameListener):
         self.root.addFrameListener(self);
 
         self.gui = gui.GUI();
-        self.gui.addTextBox("position", "1,2,3", 5, 5, 400, 200);
+        self.gui.addTextBox("position", "1,2,3", 5, 5, 400, 20);
+        self.gui.addTextBox("velocity", "1,2,3", 5, 30, 400, 20);
 
     def shutdown(self):
         # Avsluta ogre
@@ -102,6 +103,7 @@ class Application(ogre.FrameListener):
         self.scene.frame(evt);
         self.gui.setText("position", "Position: (X: %d, Y: %d, Z: %d)" %
                          (self.camera.getPosition().x, self.camera.getPosition().y, self.camera.getPosition().z));
+        self.gui.setText("velocity", "Velocity: %d (km/h)" % (abs(self.camera.getVelocity().z*3.6))); # Hastigheten är i m/s ursprungligen
         
         # Kolla ifall vårat fönster har stängts, i så fall returnerar vi false,
         #   vilket resulterar i att ogre avslutar

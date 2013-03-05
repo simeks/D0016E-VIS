@@ -4,6 +4,23 @@ import ogre.physics.bullet as bullet
 
 import camera;
 
+# Misc
+
+# Konverterar en vektor från Ogre till en vektor för bullet
+def toBtVector3(ogreVec):
+    return bullet.btVector3(ogreVec.x, ogreVec.y, ogreVec.z);
+
+# Konverterar en quaternion från Ogre till en quaternion för bullet
+def toBtQuaternion(ogreRot):
+    return bullet.btQuaternion(ogreRot.x, ogreRot.y, ogreRot.z, ogreRot.w);
+
+def toOgreVector3(bulletVec):
+    return ogre.Vector3(bulletVec.x(), bulletVec.y(), bulletVec.z());
+
+def toOgreQuaternion(bulletRot):
+    return ogre.Quaternion(bulletRot.w(), bulletRot.x(), bulletRot.y(), bulletRot.z());
+
+
 class NodeMotionState(bullet.btMotionState):
     def __init__(self, sceneNode):
         bullet.btMotionState.__init__(self);
@@ -13,16 +30,15 @@ class NodeMotionState(bullet.btMotionState):
     def getWorldTransform(self, worldTrans):
         pos = self.sceneNode.getPosition();
         rot = self.sceneNode.getOrientation();
-        worldTrans.setOrigin(bullet.btVector3(pos.x, pos.y, pos.z));
-        worldTrans.setRotation(bullet.btQuaternion(rot.x, rot.y, rot.z, rot.w));
+        worldTrans.setOrigin(toBtVector3(pos));
+        worldTrans.setRotation(toBtQuaternion(rot));
 
  
     def setWorldTransform(self, worldTrans):
         rot = worldTrans.getRotation();
-        self.sceneNode.setOrientation(
-            ogre.Quaternion(rot.w(), rot.x(), rot.y(), rot.z()));
+        self.sceneNode.setOrientation(toOgreQuaternion(rot));
         pos = worldTrans.getOrigin();
-        self.sceneNode.setPosition(pos.x(), pos.y(), pos.z());
+        self.sceneNode.setPosition(toOgreVector3(pos));
 
         
 class PhysicsWorld:
