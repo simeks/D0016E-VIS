@@ -48,45 +48,6 @@ class Scene:
         # och fäst vår entitet vid den noden
         self.node.attachObject(self.entity);
         self.node.setScale(10, 10, 10);
-
-        #for i in range(0, 3):
-        #    for j in range(0, 3):
-        #        ent2 = self.sceneMgr.createEntity(str("barrel")+str(i)+str(j), "Barrel.mesh");
-        #        node2 = self.rootNode.createChildSceneNode(str("konNode")+str(i)+str(j));
-        #        node2.setPosition(-3000, 120+(i*160), -800+(j*120)); 
-        #        node2.attachObject(ent2);
-        #        node2.setScale(20, 25, 20);            
-        #        aabb = ent2.getMesh().getBounds();
-        #        self.physics.createCylinder(node2, 20*aabb.getSize().x, (25*aabb.getSize().y)-3, 20*aabb.getSize().z, 200);
-
-
-        for j in range(0, 10):
-            ent2 = self.sceneMgr.createEntity(str("barrel")+str(j), "Barrel.mesh");
-            node2 = self.rootNode.createChildSceneNode(str("konNode")+str(j));
-            node2.setPosition(-3000, 120+(j*160), -800+(j*10)); 
-            node2.attachObject(ent2);
-            node2.setScale(20, 25, 20);            
-            aabb = ent2.getMesh().getBounds();
-            self.physics.createCylinder(node2, 20*aabb.getSize().x, (25*aabb.getSize().y)-3, 20*aabb.getSize().z, 200);
-
-
-       # self.ent2 = self.sceneMgr.createEntity("barrel", "Barrel.mesh");
-       # self.node2 = self.rootNode.createChildSceneNode("konNode");
-       # self.node2.setPosition(-800, 150, 10); 
-        #self.node2.attachObject(self.ent2);
-        #self.node2.setScale(20, 25, 20);
-     
-      #  aabb = self.ent2.getMesh().getBounds();
-       # self.physics.createCylinder(self.node2, 20*aabb.getSize().x, 25*aabb.getSize().y, 20*aabb.getSize().z, 10);
-
-
-
-
-        #self.ent3 = self.sceneMgr.createEntity("barrel2", "Barrel.mesh");
-        #self.node3 = self.rootNode.createChildSceneNode("konNode2");
-        #self.node3.setPosition(-4200, 70, -700); 
-        #self.node3.attachObject(self.ent3);
-        #self.node3.setScale(20, 25, 20);
         
         
         # Lägg till ett stort plan (20000x20000)
@@ -102,15 +63,20 @@ class Scene:
         self.physics.createGround(self.planeNode);
 
 
-        # Vägen
-        ogre.MeshManager.getSingleton().createPlane ("Road", "General", plane, 1000, 20000,
-                                                     100, 100, True, 1, 1, 1, (1,0,0));
-        self.roadEntity = self.sceneMgr.createEntity("Road", "Road");
-        self.roadEntity.setMaterialName("Road");
-        self.roadNode = self.rootNode.createChildSceneNode();
-        self.roadNode.attachObject(self.roadEntity);
-        self.roadNode.setPosition(0,1,0);
+        # Skapa väg
+        self.createRoad(ogre.Vector3(10000, 1, 0), ogre.Vector3(-10000, 1, 0), 1000)
 
+        # Skapa hus
+        self.houseNumber = 1;
+        self.createHouse(-5000, -800);
+        self.createHouse(-5000, 0);
+
+        # skapa tunnor
+        self.barrelNumber = 1;
+        self.createBarrel(-3000, 120, -800);
+        self.createBarrel(-3000, 120, 0);
+        self.createBarrel(-1000, 120, -800);
+        self.createBarrel(-1000, 120, 0);
 
         #
         animationState = self.entity.getAnimationState('Idle')
@@ -128,8 +94,46 @@ class Scene:
     def createCamera(self, name):
         camera = self.sceneMgr.createCamera(name);
         return camera;
-        
-        
+
+    def createRoad(self, startPos, endPos, width):
+        plane = ogre.Plane((0, 1, 0), 0);
+        if(startPos.x == endPos.x):
+            ogre.MeshManager.getSingleton().createPlane ("Road", "General", plane, width, startPos.z-endPos.z,
+                                                         100, 100, True, 1, 1, 1, (0,0,1));
+            self.roadEntity = self.sceneMgr.createEntity("Road", "Road");
+            self.roadEntity.setMaterialName("Road");
+            self.roadNode = self.rootNode.createChildSceneNode();
+            self.roadNode.attachObject(self.roadEntity);
+            self.roadNode.setPosition(startPos.x,1,startPos.z+((endPos.z-startPos.z)/2));
+            
+        elif(startPos.z == endPos.z):
+            ogre.MeshManager.getSingleton().createPlane ("Road", "General", plane, width, startPos.x-endPos.x,
+                                                         100, 100, True, 1, 1, 1, (1,0,0));
+            self.roadEntity = self.sceneMgr.createEntity("Road", "Road");
+            self.roadEntity.setMaterialName("Road");
+            self.roadNode = self.rootNode.createChildSceneNode();
+            self.roadNode.attachObject(self.roadEntity);
+            self.roadNode.setPosition(startPos.x+((endPos.x-startPos.x)/2),1,startPos.z);
+        #else:
+            # sne väg...
+
+    def createHouse(self, x, z):
+        houseEnt = self.sceneMgr.createEntity(str("house")+str(self.houseNumber), "tudorhouse.mesh");
+        houseNode = self.rootNode.createChildSceneNode(str("house")+str(self.houseNumber));
+        houseNode.setPosition(x, 550, z);
+        houseNode.attachObject(houseEnt);
+        self.houseNumber += 1;
+
+    def createBarrel(self, x, y, z):
+        ent = self.sceneMgr.createEntity(str("barrel")+str(self.barrelNumber), "Barrel.mesh");
+        node = self.rootNode.createChildSceneNode(str("konNode")+str(self.barrelNumber));
+        node.setPosition(x, y, z); 
+        node.attachObject(ent);
+        node.setScale(20, 25, 20);            
+        aabb = ent.getMesh().getBounds();
+        self.physics.createCylinder(node, 20*aabb.getSize().x, (25*aabb.getSize().y)-3, 20*aabb.getSize().z, 200);
+        self.barrelNumber += 1;
+    
     
     def nextLocation(self):
       if len(self.walklist) == 0:
