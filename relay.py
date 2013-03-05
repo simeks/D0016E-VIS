@@ -1,9 +1,10 @@
+# -*- coding: cp1252 -*-
 import pyinsim
 import socket
+import time
 
-IP = "127.0.0.1"
-PORT = 13336
-outSocket = None;
+addrs = [( "127.0.0.1", 13336 )]
+outSocket = None
 
          
 def pack_outsimpacket(packet):
@@ -16,11 +17,17 @@ def pack_outsimpacket(packet):
 
 def outsim_handler(outsim, packet):
     if(outSocket != None):
-        outSocket.sendto(pack_outsimpacket(packet), (IP, PORT));
+        for a in addrs:
+            outSocket.sendto(pack_outsimpacket(packet), (a[0], a[1]));
 
 
 
 if __name__ == '__main__':
     outSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM);
     pyinsim.outsim('127.0.0.1', 13338, outsim_handler, 30.0);
-    pyinsim.run(False);
+    while(True):
+        pyinsim.run(False);
+        # Insim fick timeout, vi väntar 10 sekunder och försöker igen
+        print "Insim timeout, retrying in 10 seconds...";
+        time.sleep(10);
+    

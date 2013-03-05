@@ -6,7 +6,9 @@ material Floor
 		{
 			texture_unit
 			{
-				scale 0.05 0.05
+				mipmap_bias -4
+				filtering trilinear
+				scale 0.0005 0.0005
 				texture snow_1024.jpg
 			}
 		}

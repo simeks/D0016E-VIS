@@ -91,7 +91,7 @@ class Scene:
         
         # Lägg till ett stort plan (20000x20000)
         plane = ogre.Plane((0, 1, 0), 0);
-        ogre.MeshManager.getSingleton().createPlane ("Plane", "General", plane, 20000, 20000,
+        ogre.MeshManager.getSingleton().createPlane ("Plane", "General", plane, 2000000, 2000000,
                                                      100, 100, True, 1, 1, 1, (0,0,1));
         self.planeEntity = self.sceneMgr.createEntity("Plane", "Plane");
         self.planeEntity.setMaterialName("Floor");

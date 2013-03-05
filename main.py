@@ -3,6 +3,7 @@ import ogre.renderer.OGRE as ogre
 import input
 import scene
 import camera
+import gui
 
 import math
 
@@ -81,7 +82,10 @@ class Application(ogre.FrameListener):
 
         self.input.init();
         # Lägg till detta objekt som en framelistener så vi får callbacks varje frame
-        self.root.addFrameListener(self); 
+        self.root.addFrameListener(self);
+
+        self.gui = gui.GUI();
+        self.gui.addTextBox("position", "1,2,3", 5, 5, 400, 200);
 
     def shutdown(self):
         # Avsluta ogre
@@ -96,6 +100,8 @@ class Application(ogre.FrameListener):
         self.input.frame(evt);
         
         self.scene.frame(evt);
+        self.gui.setText("position", "Position: (X: %d, Y: %d, Z: %d)" %
+                         (self.camera.getPosition().x, self.camera.getPosition().y, self.camera.getPosition().z));
         
         # Kolla ifall vårat fönster har stängts, i så fall returnerar vi false,
         #   vilket resulterar i att ogre avslutar

@@ -63,13 +63,15 @@ class Camera:
             self.rightCamera.nearClipDistance = 5;
 
 
-    def update(self, pos, orientation, velocity):
-        #self.orientation = orientation;
-        
-        #orientationx = ogre.Quaternion((5.0*(velocity.x/400.0))*(math.pi/180.0), (1,0,0));
-        #orientationz = ogre.Quaternion((-5.0*(velocity.z/1400.0))*(math.pi/180.0), (0,0,1));        
+    def update(self, pos, orientation, acceleration):
 
-        #orientation = orientation * orientationx * orientationz;
+        self.orientation = orientation;
+        acceleration = orientation * acceleration;
+
+        orientationx = ogre.Quaternion((5.0*(acceleration.z*0.001))*(math.pi/180.0), (1,0,0));
+        orientationz = ogre.Quaternion((5.0*(acceleration.x*0.001))*(math.pi/180.0), (0,0,1));        
+
+        orientation = orientation * orientationx * orientationz;
         self.mainCamera.setOrientation(orientation);
 
         if(self.rigidBody != None):

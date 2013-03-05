@@ -18,8 +18,9 @@ class OutSimListener(asyncore.dispatcher):
     def __init__(self, port, packetCallback):
         asyncore.dispatcher.__init__(self);
         self.create_socket(socket.AF_INET, socket.SOCK_DGRAM);
-        self.bind(("127.0.0.1", port));
+        self.bind(("0.0.0.0", port));
         self.packetCallback = packetCallback;
+
 
     #def handle_connect(self):
        
@@ -65,7 +66,7 @@ class Input(OIS.KeyListener):
 
         
     def __del__(self):
-        self.shutdown();    
+        self.shutdown();
 
     def init(self):
         # Skapa och initialisera OIS, som är vårat bibliotek för indata från
@@ -78,11 +79,11 @@ class Input(OIS.KeyListener):
         self.keyboard.setEventCallback(self);
 
         self.server = OutSimListener(13336, self.outsim_handler);
-
         #insim = pyinsim.insim_init('130.240.5.130', 13337, UDPPort=13338)
         #insim.bind_event(pyinsim.EVT_OUTSIM, self.outsim_handler);
         #pyinsim.outsim_init('127.0.0.1', 13338, self.outsim_handler, 30.0)
         #pyinsim.main_loop(True)
+        self.position = ogre.Vector3(0,100,0);
 
 
     def shutdown(self):
@@ -94,25 +95,33 @@ class Input(OIS.KeyListener):
 
     
     def outsim_handler(self, packet):
+        scale = 0.001
+        acceleration = ogre.Vector3(0,0,0);
         if(self.started == False):
-            self.position = ogre.Vector3(0,0,0);
             # Bestäm ett offset så att körningen alltid startar på (0, 0, 0)
-            self.offsetPos = ogre.Vector3(0 - packet.Pos[0], 0 - packet.Pos[2], 0 - packet.Pos[1]);
+            self.offsetPos = ogre.Vector3(0 - packet.Pos[0], 0, 0 - packet.Pos[1]);
             self.started = True;
+            self.lastPacket = packet.Time;
+        else:
+            delta = packet.Time - self.lastPacket;
+            self.lastPacket = packet.Time;
 
-
-        scale = 0.0005;
-        self.position.x += packet.Vel[0]*scale;
-        self.position.z += packet.Vel[1]*scale;
+            acceleration = ogre.Vector3(packet.Accel[0], 0, packet.Accel[1]) * delta;
+            
+        self.position = ogre.Vector3(packet.Pos[0]*scale,100,packet.Pos[1]*scale);
+        self.position = self.offsetPos + self.position;
+        self.position = self.position;
+            
         quatx = ogre.Quaternion(0, (1,0,0));
         quaty = ogre.Quaternion(packet.Heading, (0,1,0));
         quatz = ogre.Quaternion(0, (0,0,1));
         quat = quatx * quaty * quatz;
 
-        pos = ogre.Vector3((self.offsetPos.x + packet.Pos[0])*scale, 100,
-                         (self.offsetPos.z - packet.Pos[1])*scale);
-        
-        self.camera.update(pos, quaty, ogre.Vector3());
+        self.position = ogre.Vector3((self.offsetPos.x + packet.Pos[0])*scale, 100,
+                          (self.offsetPos.z - packet.Pos[1])*scale);
+
+
+        self.camera.update(self.position, quaty, acceleration);
 
     # Denna anropas från vårat applikations-objekt en gång varje frame så att vi får
     # en chans att göra saker som att läsa indata eller flytta kameran
@@ -135,7 +144,7 @@ class Input(OIS.KeyListener):
             if(self.turn_left != 0):
                 yaw = ogre.Quaternion(self.turn_left * evt.timeSinceLastFrame, (0, 1, 0));
                 orientation = orientation * yaw;
-            
+        
             self.camera.update(pos, orientation, ogre.Vector3(0,0,0));
 
         else:
