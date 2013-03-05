@@ -68,8 +68,8 @@ class Camera:
         self.orientation = orientation;
         acceleration = orientation * acceleration;
 
-        orientationx = ogre.Quaternion((25.0*(acceleration.z*0.001))*(math.pi/180.0), (1,0,0));
-        orientationz = ogre.Quaternion((25.0*(acceleration.x*0.001))*(math.pi/180.0), (0,0,1));        
+        orientationx = ogre.Quaternion((5.0*(acceleration.z*0.001))*(math.pi/180.0), (1,0,0));
+        orientationz = ogre.Quaternion((5.0*(acceleration.x*0.001))*(math.pi/180.0), (0,0,1));        
 
         orientation = orientation * orientationx * orientationz;
         self.mainCamera.setOrientation(orientation);
