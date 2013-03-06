@@ -69,7 +69,7 @@ class Camera:
             transform = bullet.btTransform();
 
             self.rigidBody.getMotionState().getWorldTransform(transform);
-            #print transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z();
+            print transform.getOrigin().x(), transform.getOrigin().y(), transform.getOrigin().z();
             
         self.orientation = orientation;
         acceleration = orientation * acceleration;
