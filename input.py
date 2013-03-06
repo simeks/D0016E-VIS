@@ -84,7 +84,7 @@ class Input(OIS.KeyListener):
         self.position = ogre.Vector3(0,100,0);
 
         rot = ogre.Quaternion(-math.pi, (0, 1, 0));
-        self.camera.update(self.position, rot, (0,0,0),(0,0,0));
+        self.camera.update(self.position, rot, ogre.Vector3(0,0,0),ogre.Vector3(0,0,0));
 
 
     def shutdown(self):

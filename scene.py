@@ -1,6 +1,9 @@
 # -*- coding: cp1252 -*-
 import ogre.renderer.OGRE as ogre
+import math
 import physics
+
+
 
 class Scene:
     # Konstruktor
@@ -74,13 +77,21 @@ class Scene:
         self.createHouse(-5000, 0);
 
         # Skapa staket
-        self.createFence(-500, 500);
+        self.createFence(ogre.Vector3(9448,0,-13190), ogre.Vector3(5863,0,-14857));
+        
 
         # skapa tunnor
         #self.createBarrel(-3000, 120, -800);
         self.createBarrel(-3000, 120, 0);
         self.createBarrel(-1000, 120, -800);
         self.createBarrel(-1000, 120, 0);
+
+        for b in range(1, 100):
+            self.createBarrel(2000, 120, 1300-b*200);
+        for b in range(1, 100):
+            self.createBarrel(2000, 200, 1300-b*200);
+        for b in range(1, 100):
+            self.createBarrel(2000, 320, 1300-b*200);
 
         #
         animationState = self.entity.getAnimationState('Idle')
@@ -128,14 +139,35 @@ class Scene:
         houseNode.attachObject(houseEnt);
         self.houseNumber += 1;
 
+    def createFence(self, p1, p2):
+        delta = p2 - p1;
+        fenceLength = 300;
+        num = delta.length() / fenceLength;
+        pos = p1;
+        for i in range(0, int(num)):
+            fenceEnt = self.sceneMgr.createEntity(str("fence_")+str(self.fenceNumber)+"_"+str(i), "fence.mesh");
+            fenceNode = self.rootNode.createChildSceneNode(str("fence_")+str(self.fenceNumber)+"_"+str(i));
+            fenceNode.setPosition(pos);
+            fenceNode.setScale(10, 15, 2);
+            fenceNode.attachObject(fenceEnt);
+            quatx = ogre.Quaternion(math.pi, (1,0,0));
+            angle = math.acos(abs(delta.x) / delta.length());
+            
+            quaty = ogre.Quaternion(angle, (0,1,0));
+            quatx = quatx * quaty;
+            fenceNode.setOrientation(quatx);
+            pos += (delta / num);
+
+        self.fenceNumber += 1;
+
     
-    def createFence(self, x, z):
-        fenceEnt = self.sceneMgr.createEntity(str("fence")+str(self.fenceNumber), "fence.mesh");
-        fenceNode = self.rootNode.createChildSceneNode(str("fence")+str(self.fenceNumber));
-        fenceNode.setPosition(x, 75, z);
-        fenceNode.setScale(10, 20, 2);
-        fenceNode.attachObject(fenceEnt);
-        self.fenceNumber += 1;        
+   # def createFence(self, x, z):
+   #     fenceEnt = self.sceneMgr.createEntity(str("fence")+str(self.fenceNumber), "fence2.mesh");
+   #     fenceNode = self.rootNode.createChildSceneNode(str("fence")+str(self.fenceNumber));
+   #     fenceNode.setPosition(x, 120, z);
+   #     fenceNode.setScale(10, 20, 2);
+   #     fenceNode.attachObject(fenceEnt);
+   #     self.fenceNumber += 1;        
 
     def createBarrel(self, x, y, z):
         ent = self.sceneMgr.createEntity(str("barrel")+str(self.barrelNumber), "Barrel.mesh");
