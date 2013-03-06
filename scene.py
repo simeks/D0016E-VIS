@@ -19,6 +19,9 @@ class Scene:
         self.walklist.append(ogre.Vector3(-3350, 0, 550))
 
         self.physics = physics.PhysicsWorld();
+        self.houseNumber = 0;
+        self.fenceNumber = 0;
+        self.barrelNumber = 0;
 
     def __del__(self):
         del self.sceneMgr;
@@ -67,13 +70,14 @@ class Scene:
         self.createRoad(ogre.Vector3(10000, 1, 0), ogre.Vector3(-10000, 1, 0), 1000)
 
         # Skapa hus
-        self.houseNumber = 1;
         self.createHouse(-5000, -800);
         self.createHouse(-5000, 0);
 
+        # Skapa staket
+        self.createFence(-500, 500);
+
         # skapa tunnor
-        self.barrelNumber = 1;
-        self.createBarrel(-3000, 120, -800);
+        #self.createBarrel(-3000, 120, -800);
         self.createBarrel(-3000, 120, 0);
         self.createBarrel(-1000, 120, -800);
         self.createBarrel(-1000, 120, 0);
@@ -123,6 +127,15 @@ class Scene:
         houseNode.setPosition(x, 550, z);
         houseNode.attachObject(houseEnt);
         self.houseNumber += 1;
+
+    
+    def createFence(self, x, z):
+        fenceEnt = self.sceneMgr.createEntity(str("fence")+str(self.fenceNumber), "fence.mesh");
+        fenceNode = self.rootNode.createChildSceneNode(str("fence")+str(self.fenceNumber));
+        fenceNode.setPosition(x, 75, z);
+        fenceNode.setScale(10, 20, 2);
+        fenceNode.attachObject(fenceEnt);
+        self.fenceNumber += 1;        
 
     def createBarrel(self, x, y, z):
         ent = self.sceneMgr.createEntity(str("barrel")+str(self.barrelNumber), "Barrel.mesh");

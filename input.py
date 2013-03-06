@@ -61,8 +61,6 @@ class Input(OIS.KeyListener):
         self.realInput = False;
         self.velocity = ogre.Vector3(0, 0, 0);
         self.position = ogre.Vector3(0, 100, 0);
-        self.lastTime = 0;
-        self.started = False;
 
         
     def __del__(self):
@@ -96,29 +94,14 @@ class Input(OIS.KeyListener):
     
     def outsim_handler(self, packet):
         scale = 0.001
-        acceleration = ogre.Vector3(0,0,0);
-        if(self.started == False):
-            # Bestäm ett offset så att körningen alltid startar på (0, 0, 0)
-            self.offsetPos = ogre.Vector3(0 - packet.Pos[0], 0, 0 - packet.Pos[1]);
-            self.started = True;
-            self.lastPacket = packet.Time;
-        else:
-            delta = packet.Time - self.lastPacket;
-            self.lastPacket = packet.Time;
-
-            acceleration = ogre.Vector3(packet.Accel[0], 0, packet.Accel[1]) * 100;
-            
-        self.position = ogre.Vector3(packet.Pos[0]*scale,100,packet.Pos[1]*scale);
-        self.position = self.offsetPos + self.position;
-        self.position = self.position;
+        acceleration = ogre.Vector3(packet.Accel[0], 0, packet.Accel[1]) * 100;
             
         quatx = ogre.Quaternion(0, (1,0,0));
         quaty = ogre.Quaternion(packet.Heading, (0,1,0));
         quatz = ogre.Quaternion(0, (0,0,1));
         quat = quatx * quaty * quatz;
 
-        self.position = ogre.Vector3((self.offsetPos.x + packet.Pos[0])*scale, 100,
-                          (self.offsetPos.z - packet.Pos[1])*scale);
+        self.position = ogre.Vector3(packet.Pos[0]*scale, 100, packet.Pos[1]*scale);
 
 
         velocity = ogre.Vector3(packet.Vel[0],0,packet.Vel[1]);
