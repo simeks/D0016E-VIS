@@ -61,7 +61,7 @@ class Input(OIS.KeyListener):
         self.realInput = False;
         self.velocity = ogre.Vector3(0, 0, 0);
         self.position = ogre.Vector3(0, 100, 0);
-
+        self.offset = -ogre.Vector3(-19746, 0, -796);
         
     def __del__(self):
         self.shutdown();
@@ -83,6 +83,9 @@ class Input(OIS.KeyListener):
         #pyinsim.main_loop(True)
         self.position = ogre.Vector3(0,100,0);
 
+        rot = ogre.Quaternion(-math.pi, (0, 1, 0));
+        self.camera.update(self.position, rot, (0,0,0),(0,0,0));
+
 
     def shutdown(self):
         # Städa upp allt vi skapat med OIS
@@ -101,7 +104,7 @@ class Input(OIS.KeyListener):
         quatz = ogre.Quaternion(0, (0,0,1));
         quat = quatx * quaty * quatz;
 
-        self.position = ogre.Vector3(packet.Pos[0]*scale, 100, -packet.Pos[1]*scale);
+        self.position = self.offset + ogre.Vector3(packet.Pos[0]*scale, 100, -packet.Pos[1]*scale);
 
 
         velocity = ogre.Vector3(packet.Vel[0],0,packet.Vel[1]);
