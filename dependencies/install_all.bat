@@ -7,3 +7,5 @@ C:\Python27\python.exe setup.py install
 cd ..\openpyxl-1.6.1\
 C:\Python27\python.exe setup.py install
 
+cd ..\pyinsim-2.0.5\
+C:\Python27\python.exe setup.py install
