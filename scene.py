@@ -113,12 +113,8 @@ class Scene:
         self.createBarrel(-1000, 120, -800);
         self.createBarrel(-1000, 120, 0);
 
-        for b in range(1, 100):
-            self.createBarrel(2000, 120, 1300-b*200);
-        for b in range(1, 100):
-            self.createBarrel(2000, 200, 1300-b*200);
-        for b in range(1, 100):
-            self.createBarrel(2000, 320, 1300-b*200);
+        for b in range(1, 10):
+            self.createBarrel(2000, 160, 1300-b*200);
 
         #
         #animationState = self.entity.getAnimationState('Idle')
@@ -203,7 +199,7 @@ class Scene:
         node.attachObject(ent);
         node.setScale(20, 25, 20);            
         aabb = ent.getMesh().getBounds();
-        self.physics.createCylinder(node, 20*aabb.getSize().x, (25*aabb.getSize().y)-3, 20*aabb.getSize().z, 200);
+        self.physics.createCylinder(node, 20*aabb.getSize().x, (25*aabb.getSize().y)-3, 20*aabb.getSize().z, 50);
         self.barrelNumber += 1;
     
     

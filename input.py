@@ -121,8 +121,6 @@ class Input(OIS.KeyListener):
 
         # Behandla all inkommande data
         asyncore.loop(count = 1);
-                    
-            
 
         if(self.realInput):
             pos = self.camera.getPosition();
@@ -132,22 +130,8 @@ class Input(OIS.KeyListener):
                 yaw = ogre.Quaternion(self.turn_left * evt.timeSinceLastFrame, (0, 1, 0));
                 orientation = orientation * yaw;
         
-            self.camera.update(pos, orientation, ogre.Vector3(0,0,0));
+            self.camera.update(pos, orientation, ogre.Vector3(0,0,0), ogre.Vector3(0,0,0));
 
-        else:
-            #packet = packetQueue.get();
-
-            #self.camera.update(ogre.Vector3(packet.Pos[0],packet.Pos[2],packet.Pos[1], ogre.Quaternion(), ogre.Vector3()));
-            
-            # Ifall tiden har gått utanför våran data så startar vi bara om från t=0 igen
-            if(self.total_time > ((self.num_timesteps-1) * self.timestep)):
-                self.total_time = 0;
-
-            # Räkna ut närmaste timestep
-            index = int(round(self.total_time/self.timestep));
-
-
-            #self.camera.update(self.position, orientation, self.velocity);
 
 
         
