@@ -25,7 +25,7 @@ class Camera:
 
         self.orientation = self.mainCamera.getOrientation();
         
-        self.rigidBody = self.scene.physics.createCameraBody(self, 300, 20);
+        self.rigidBody = self.scene.physics.createCameraBody(self, 300, 100);
 
 
         # Ifall vi har flera kameror men bara ett fönster så kan inte viewporten täcka hela fönstret
