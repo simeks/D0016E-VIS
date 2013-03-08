@@ -3,7 +3,7 @@ import pyinsim
 import socket
 import time
 
-addrs = [( "127.0.0.1", 13336 )]
+addrs = [( "127.0.0.1", 13336 )]#, ( "130.240.5.194", 13336 )]
 outSocket = None
 
          
