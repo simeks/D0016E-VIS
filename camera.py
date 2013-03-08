@@ -25,7 +25,7 @@ class Camera:
 
         self.orientation = self.mainCamera.getOrientation();
         
-        self.rigidBody = self.scene.physics.createCameraBody(self, 500, 1500);
+        self.rigidBody = self.scene.physics.createCameraBody(self, 50, 0);
 
 
         # Ifall vi har flera kameror men bara ett fönster så kan inte viewporten täcka hela fönstret
@@ -64,11 +64,12 @@ class Camera:
 
     def update(self, pos, orientation, acceleration, velocity):
         if(self.rigidBody != None):
-            self.rigidBody.applyForce(physics.toBtVector3(acceleration)*1500, physics.toBtVector3(pos));
-            self.rigidBody.proceedToTransform(bullet.btTransform(bullet.btQuaternion(), bullet.btVector3(pos.x,pos.y,pos.z)));
-            transform = bullet.btTransform();
-
-            self.rigidBody.getMotionState().getWorldTransform(transform);
+            self.rigidBody.applyForce(physics.toBtVector3(acceleration), physics.toBtVector3(pos - self.mainCamera.getPosition()));
+            #self.rigidBody.proceedToTransform(bullet.btTransform(bullet.btQuaternion(), physics.toBtVector3(pos)));
+            trans = bullet.btTransform();
+            self.rigidBody.getMotionState().getWorldTransform(trans);
+            vec = trans.getOrigin();
+            print "Pos",vec.x(),vec.y(),vec.z();
             
         self.orientation = orientation;
         acceleration = orientation * acceleration;
@@ -85,7 +86,6 @@ class Camera:
 
 
         if self.multipleCameras:
-            # Räkna ut riktning till vänster (Ifall vi har en kamera för vänster)
             sqrPt5 = math.sqrt(0.5);
             
             leftOrientation = orientation * ogre.Quaternion(self.cameraAngle * (math.pi/180.0), (0,1,0));

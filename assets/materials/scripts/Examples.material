@@ -40,8 +40,8 @@ material Examples/TudorHouse
 		{
 			texture_unit
 			{
-				tex_address_mode clamp
 				texture fw12b.jpg
+				tex_address_mode clamp
 			}
 		}
 	}
