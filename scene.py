@@ -36,7 +36,7 @@ class Scene:
         # Skapa himmelen
         self.sceneMgr.setSkyDome (True, "Examples/CloudySky", 24, 16, 50000)
         # Sätt så vi får ett ambient light som lyser upp scenen
-        self.sceneMgr.setAmbientLight(ogre.ColourValue(0.5,0.5,0.5));
+        self.sceneMgr.setAmbientLight(ogre.ColourValue(0.5,0.5,0.8));
         fadeColor = ogre.ColourValue(0.9, 0.9, 0.9);
         self.sceneMgr.setFog(ogre.FOG_LINEAR, fadeColor, 0.0, 10000, 80000);
         
@@ -75,6 +75,9 @@ class Scene:
         # Skapa hus
         self.createHouse(-5000, -800);
         self.createHouse(-5000, 0);
+        self.createWindmill(5000, 5000);
+        self.createWindmill(5500, 3000);
+        self.createWindmill(5000, 2000);
 
         # Skapa staket
 #        self.createFence(ogre.Vector3(6584,0,4072), ogre.Vector3(6132,0,5040)); #7
@@ -139,9 +142,9 @@ class Scene:
 
         # skapa tunnor
         #self.createBarrel(-3000, 120, -800);
-        self.createBarrel(-3000, 120, 0);
+        self.createBarrel(-3300, 120, 0);
         self.createBarrel(-1000, 120, -800);
-        self.createBarrel(-1000, 120, 0);
+        self.createBarrel(-1800, 120, 0);
 
         for b in range(1, 10):
             self.createBarrel(2000, 160, 1300-b*200);
@@ -155,7 +158,7 @@ class Scene:
         self.light = self.sceneMgr.createLight("Light");
         self.light.setCastShadows(True);
         self.light.type = ogre.Light.LT_DIRECTIONAL;
-        self.light.diffuseColour = (0.9,0.9,0.9);
+        self.light.diffuseColour = (0.8,0.8,0.9);
         self.light.direction = (0.5, -0.5, 0.5);
 
         
@@ -190,6 +193,15 @@ class Scene:
         houseNode = self.rootNode.createChildSceneNode(str("house")+str(self.houseNumber));
         houseNode.setPosition(x, 550, z);
         houseNode.attachObject(houseEnt);
+        self.houseNumber += 1;
+        
+    def createWindmill(self, x, z):
+        windmillEnt = self.sceneMgr.createEntity(str("windmill")+str(self.houseNumber), "windmill.mesh");
+        windmillNode = self.rootNode.createChildSceneNode(str("windmill")+str(self.houseNumber));
+        windmillNode.setPosition(x, 1000, z);
+        windmillNode.setScale(10, 10, 10);
+        windmillNode.setOrientation(ogre.Quaternion(math.pi/2.0, (1,0,0)));
+        windmillNode.attachObject(windmillEnt);
         self.houseNumber += 1;
 
     def createFence(self, p2, p1):
