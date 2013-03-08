@@ -36,7 +36,7 @@ class Scene:
         # Skapa himmelen
         self.sceneMgr.setSkyDome (True, "Examples/CloudySky", 24, 16, 50000)
         # Sätt så vi får ett ambient light som lyser upp scenen
-        self.sceneMgr.setAmbientLight(ogre.ColourValue(0.5,0.5,0.5));
+        self.sceneMgr.setAmbientLight(ogre.ColourValue(0.6,0.6,0.8));
         fadeColor = ogre.ColourValue(0.9, 0.9, 0.9);
         self.sceneMgr.setFog(ogre.FOG_LINEAR, fadeColor, 0.0, 10000, 80000);
         
@@ -70,11 +70,19 @@ class Scene:
 
 
         # Skapa väg
-        self.createRoad(ogre.Vector3(10000, 1, 0), ogre.Vector3(-10000, 1, 0), 1000)
+        self.createRoad(ogre.Vector3(7000, 1, -10000), ogre.Vector3(7000, 1, 10000))
 
         # Skapa hus
-        self.createHouse(-5000, -800);
-        self.createHouse(-5000, 0);
+        rot = ogre.Quaternion(math.pi/2.0, (0, 1, 0));
+        for i in range(0, 10):
+            self.createHouse(10000+(math.sin(i)*1000), -2000+(i*800), rot);
+
+        for i in range(0, 10):
+            self.createHouse(11500+(math.sin(i)*1000), -1500+(i*800), rot);
+        
+        #self.createWindmill(5000, 5000);
+        #self.createWindmill(5500, 3000);
+        #self.createWindmill(5000, 2000);
 
         # Skapa staket
 #        self.createFence(ogre.Vector3(6584,0,4072), ogre.Vector3(6132,0,5040)); #7
@@ -116,12 +124,20 @@ class Scene:
         self.createFence(ogre.Vector3(4994,0,-14997), ogre.Vector3(5461,0,-15030)); #21
         #
         self.createFence(ogre.Vector3(5767,0,-15162), ogre.Vector3(9340,0,-13314)); #1
+<<<<<<< HEAD
         self.createFence(ogre.Vector3(9340,0,-13314), ogre.Vector3(9925,0,-13222)); #14
         self.createFence(ogre.Vector3(9925,0,-13222), ogre.Vector3(10216,0,-12885)); #15
         self.createFence(ogre.Vector3(10216,0,-12885), ogre.Vector3(10468,0,-12662)); #16
         self.createFence(ogre.Vector3(10468,0,-12662), ogre.Vector3(10940,0,-12401)); #17
         self.createFence(ogre.Vector3(10940,0,-12401), ogre.Vector3(11225,0,-11865)); #18
         self.createFence(ogre.Vector3(11225,0,-11865), ogre.Vector3(11183,0,-11662)); #19
+=======
+        #
+        #
+        #
+        #
+        #ogre.Vector3(0,1,0)
+>>>>>>> 846e23213b1d1acbe543c6d3bde0e12a60f2232f
         self.createFence(ogre.Vector3(11183,0,-11662), ogre.Vector3(7588,0,-4514)); #2
         self.createFence(ogre.Vector3(7588,0,-4514), ogre.Vector3(6773,0,-2665)); #3
         self.createFence(ogre.Vector3(6773,0,-2665), ogre.Vector3(6628,0,-2234)); #4
@@ -144,9 +160,9 @@ class Scene:
 
         # skapa tunnor
         #self.createBarrel(-3000, 120, -800);
-        self.createBarrel(-3000, 120, 0);
+        self.createBarrel(-3300, 120, 0);
         self.createBarrel(-1000, 120, -800);
-        self.createBarrel(-1000, 120, 0);
+        self.createBarrel(-1800, 120, 0);
 
         for b in range(1, 10):
             self.createBarrel(2000, 160, 1300-b*200);
@@ -160,7 +176,7 @@ class Scene:
         self.light = self.sceneMgr.createLight("Light");
         self.light.setCastShadows(True);
         self.light.type = ogre.Light.LT_DIRECTIONAL;
-        self.light.diffuseColour = (0.9,0.9,0.9);
+        self.light.diffuseColour = (0.8,0.8,0.9);
         self.light.direction = (0.5, -0.5, 0.5);
 
         
@@ -168,33 +184,53 @@ class Scene:
         camera = self.sceneMgr.createCamera(name);
         return camera;
 
-    def createRoad(self, startPos, endPos, width):
-        plane = ogre.Plane((0, 1, 0), 0);
-        if(startPos.x == endPos.x):
-            ogre.MeshManager.getSingleton().createPlane ("Road", "General", plane, width, startPos.z-endPos.z,
-                                                         100, 100, True, 1, 1, 1, (0,0,1));
-            self.roadEntity = self.sceneMgr.createEntity("Road", "Road");
-            self.roadEntity.setMaterialName("Road");
-            self.roadNode = self.rootNode.createChildSceneNode();
-            self.roadNode.attachObject(self.roadEntity);
-            self.roadNode.setPosition(startPos.x,1,startPos.z+((endPos.z-startPos.z)/2));
-            
-        elif(startPos.z == endPos.z):
-            ogre.MeshManager.getSingleton().createPlane ("Road", "General", plane, width, startPos.x-endPos.x,
-                                                         100, 100, True, 1, 1, 1, (1,0,0));
-            self.roadEntity = self.sceneMgr.createEntity("Road", "Road");
-            self.roadEntity.setMaterialName("Road");
-            self.roadNode = self.rootNode.createChildSceneNode();
-            self.roadNode.attachObject(self.roadEntity);
-            self.roadNode.setPosition(startPos.x+((endPos.x-startPos.x)/2),1,startPos.z);
-        #else:
-            # sne väg...
+    roadCreated = False;
+    def createRoad(self, p2, p1):
+        dir = p2 - p1;
+        roadLength = 1000;
+        num = (dir.length() / roadLength)+1;
+        dir.normalise();
 
-    def createHouse(self, x, z):
+        #quatx = ogre.Quaternion(math.pi, (1,0,0)); # Rotera 180 grader så att staketet inte är upp och ned
+        quaty = dir.getRotationTo(ogre.Vector3(0,0,-1));
+        quat = quaty;
+
+        if(self.roadCreated == False):
+            plane = ogre.Plane((0, 1, 0), 0);
+            ogre.MeshManager.getSingleton().createPlane ("Road", "General", plane, 800, roadLength,
+                                                         100, 100, True, 1, 1, 1, (0,0,1));
+            self.roadCreated = True;
+
+        rootNode = self.rootNode.createChildSceneNode(str("road_root_"+str(self.fenceNumber)));
+        pos = ogre.Vector3(0,0,0);
+        for i in range(0, int(num)):
+            roadEntity = self.sceneMgr.createEntity(str("road_")+str(self.fenceNumber)+"_"+str(i), "Road");
+            roadEntity.setMaterialName("Road");
+            roadNode = rootNode.createChildSceneNode(str("road_")+str(self.fenceNumber)+"_"+str(i));
+            roadNode.setPosition(pos);
+            roadNode.setOrientation(ogre.Quaternion(math.pi/2,(0,1,0)));
+            roadNode.attachObject(roadEntity);
+            pos.x += roadLength;
+            
+        rootNode.setPosition(p2);
+        rootNode.setOrientation(quat);
+        self.fenceNumber += 1;
+
+    def createHouse(self, x, z, orientation):
         houseEnt = self.sceneMgr.createEntity(str("house")+str(self.houseNumber), "tudorhouse.mesh");
         houseNode = self.rootNode.createChildSceneNode(str("house")+str(self.houseNumber));
         houseNode.setPosition(x, 550, z);
+        houseNode.setOrientation(orientation);
         houseNode.attachObject(houseEnt);
+        self.houseNumber += 1;
+        
+    def createWindmill(self, x, z):
+        windmillEnt = self.sceneMgr.createEntity(str("windmill")+str(self.houseNumber), "windmill.mesh");
+        windmillNode = self.rootNode.createChildSceneNode(str("windmill")+str(self.houseNumber));
+        windmillNode.setPosition(x, 1000, z);
+        windmillNode.setScale(50, 50, 50);
+        windmillNode.setOrientation(ogre.Quaternion(math.pi/2.0, (1,0,0)));
+        windmillNode.attachObject(windmillEnt);
         self.houseNumber += 1;
 
     def createFence(self, p2, p1):

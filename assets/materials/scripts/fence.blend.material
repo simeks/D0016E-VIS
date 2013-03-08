@@ -48,7 +48,7 @@ material Material
 
             texture_unit 
             {
-                texture trees_bark_001_col.jpg
+                texture fence.jpg
                 tex_address_mode wrap
                 scale 1.0 1.0
                 colour_op modulate

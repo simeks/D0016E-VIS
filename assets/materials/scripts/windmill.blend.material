@@ -25,8 +25,8 @@ material windmill
         pass windmill
         {
             ambient 1.0 1.0 1.0 1.0
-            diffuse 0.800000011920929 0.800000011920929 0.800000011920929 1.0
-            specular 1.0 1.0 1.0 1.0 29.5
+            diffuse 0.7 0.7 0.7 1.0
+            specular 0.2 0.2 0.2 1.0 19.5
             emissive 0.0 0.0 0.0 1.0
 
             alpha_to_coverage off
