@@ -77,10 +77,10 @@ class Scene:
         self.createHouse(-5000, 0);
 
         # Skapa staket
-        self.createFence(ogre.Vector3(6584,0,4072), ogre.Vector3(6132,0,5040));
-        self.createFence(ogre.Vector3(6132,0,5040), ogre.Vector3(404,0,5181));
-        self.createFence(ogre.Vector3(404,0,5181), ogre.Vector3(-12,0,4985));
-        self.createFence(ogre.Vector3(-12,0,4985), ogre.Vector3(-310,0,4703));
+        #self.createFence(ogre.Vector3(6584,0,4072), ogre.Vector3(6132,0,5040));
+        #self.createFence(ogre.Vector3(6132,0,5040), ogre.Vector3(404,0,5181));
+        #self.createFence(ogre.Vector3(404,0,5181), ogre.Vector3(-12,0,4985));
+        #self.createFence(ogre.Vector3(-12,0,4985), ogre.Vector3(-310,0,4703));
         self.createFence(ogre.Vector3(-310,0,4703), ogre.Vector3(-400,0,4239));
         self.createFence(ogre.Vector3(-400,0,4239), ogre.Vector3(-455,0,-941));        
         self.createFence(ogre.Vector3(-455,0,-941), ogre.Vector3(-501,0,-1571));
@@ -90,25 +90,35 @@ class Scene:
         self.createFence(ogre.Vector3(-367,0,-5129), ogre.Vector3(180,0,-5357));
         self.createFence(ogre.Vector3(180,0,-5357), ogre.Vector3(4583,0,-14480));        
         self.createFence(ogre.Vector3(4583,0,-14480), ogre.Vector3(4919,0,-14849));
-        self.createFence(ogre.Vector3(4919,0,-14849), ogre.Vector3(5325,0,-14989));        
-        self.createFence(ogre.Vector3(5325,0,-14989), ogre.Vector3(5767,0,-14962));
-        self.createFence(ogre.Vector3(5767,0,-14962), ogre.Vector3(9340,0,-13214));        
-        self.createFence(ogre.Vector3(9340,0,-13214), ogre.Vector3(9702,0,-13179));
-        self.createFence(ogre.Vector3(9702,0,-13179), ogre.Vector3(10103,0,-13006));        
-        self.createFence(ogre.Vector3(10103,0,-13006), ogre.Vector3(10330,0,-12724));
-        self.createFence(ogre.Vector3(10330,0,-12724), ogre.Vector3(10779,0,-12452));        
-        self.createFence(ogre.Vector3(10779,0,-12452), ogre.Vector3(11049,0,-12122));
-        self.createFence(ogre.Vector3(11049,0,-12122), ogre.Vector3(11083,0,-11762));
-        self.createFence(ogre.Vector3(11083,0,-11762), ogre.Vector3(7588,0,-4714));
-        self.createFence(ogre.Vector3(7588,0,-4714), ogre.Vector3(6673,0,-2765));        
-        self.createFence(ogre.Vector3(6673,0,-2765), ogre.Vector3(6528,0,-2334));
-        self.createFence(ogre.Vector3(6528,0,-2334), ogre.Vector3(6513,0,2443));        
-        self.createFence(ogre.Vector3(6513,0,2443), ogre.Vector3(6584,0,4072));
-            
-        #self.createFence(ogre.Vector3(-1000,0,-1000), ogre.Vector3(-1000,0, 1000));
-        #self.createFence(ogre.Vector3(-1000,0, 1000), ogre.Vector3( 1000,0, 1000));
-        #self.createFence(ogre.Vector3( 1000,0, 1000), ogre.Vector3( 1000,0,-1000));
-        #self.createFence(ogre.Vector3( 1000,0,-1000), ogre.Vector3(-1000,0,-1000));
+        self.createFence(ogre.Vector3(4919,0,-14849), ogre.Vector3(5325,0,-14989));
+        
+        #self.createFence(ogre.Vector3(5325,0,-14989), ogre.Vector3(5767,0,-14962));
+#        self.createFence(ogre.Vector3(5767,0,-14962), ogre.Vector3(9340,0,-13214));   #1     
+        #self.createFence(ogre.Vector3(9340,0,-13214), ogre.Vector3(9702,0,-13179));
+        
+        #self.createFence(ogre.Vector3(9702,0,-13179), ogre.Vector3(10103,0,-13006));        
+        #self.createFence(ogre.Vector3(10103,0,-13006), ogre.Vector3(10330,0,-12724));
+        #self.createFence(ogre.Vector3(10330,0,-12724), ogre.Vector3(10779,0,-12452));        
+        #self.createFence(ogre.Vector3(10779,0,-12452), ogre.Vector3(11049,0,-12122));
+        #self.createFence(ogre.Vector3(11049,0,-12122), ogre.Vector3(11083,0,-11762));
+        
+#        self.createFence(ogre.Vector3(11083,0,-11762), ogre.Vector3(7588,0,-4714)); #2        
+#        self.createFence(ogre.Vector3(7588,0,-4714), ogre.Vector3(6673,0,-2765));  #3      
+#        self.createFence(ogre.Vector3(6673,0,-2765), ogre.Vector3(6528,0,-2334)); #4
+#        self.createFence(ogre.Vector3(6528,0,-2334), ogre.Vector3(6513,0,2443)); #5    
+#        self.createFence(ogre.Vector3(6513,0,2443), ogre.Vector3(6584,0,4072)); #6
+
+        self.createFence(ogre.Vector3(5767,0,-15162), ogre.Vector3(9340,0,-13314)); #1
+        #
+        #
+        #
+        #
+        #
+        self.createFence(ogre.Vector3(11183,0,-11662), ogre.Vector3(7588,0,-4514)); #2
+        self.createFence(ogre.Vector3(7588,0,-4514), ogre.Vector3(6773,0,-2665)); #3
+        self.createFence(ogre.Vector3(6773,0,-2665), ogre.Vector3(6628,0,-2234)); #4
+        self.createFence(ogre.Vector3(6628,0,-2234), ogre.Vector3(6613,0,2343)); #5
+        self.createFence(ogre.Vector3(6613,0,2343), ogre.Vector3(6684,0,3972)); #6
 
         # skapa tunnor
         #self.createBarrel(-3000, 120, -800);
