@@ -32,6 +32,21 @@ material Road
 	}
 }
 
+material Examples/TudorHouse
+{
+	technique
+	{
+		pass
+		{
+			texture_unit
+			{
+				tex_address_mode clamp
+				texture fw12b.jpg
+			}
+		}
+	}
+}
+
 material RustyBarrel
 {
 	technique
