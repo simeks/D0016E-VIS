@@ -75,9 +75,9 @@ class Scene:
         # Skapa hus
         self.createHouse(-5000, -800);
         self.createHouse(-5000, 0);
-        self.createWindmill(5000, 5000);
-        self.createWindmill(5500, 3000);
-        self.createWindmill(5000, 2000);
+        self.createWindmill(5000, 6000);
+        self.createWindmill(7500, 3000);
+        self.createWindmill(10000, 2000);
 
         # Skapa staket
 #        self.createFence(ogre.Vector3(6584,0,4072), ogre.Vector3(6132,0,5040)); #7
@@ -197,9 +197,10 @@ class Scene:
         
     def createWindmill(self, x, z):
         windmillEnt = self.sceneMgr.createEntity(str("windmill")+str(self.houseNumber), "windmill.mesh");
+        windmillEnt.setCastShadows(False);
         windmillNode = self.rootNode.createChildSceneNode(str("windmill")+str(self.houseNumber));
-        windmillNode.setPosition(x, 1000, z);
-        windmillNode.setScale(10, 10, 10);
+        windmillNode.setPosition(x, 2500, z);
+        windmillNode.setScale(100, 100, 100);
         windmillNode.setOrientation(ogre.Quaternion(math.pi/2.0, (1,0,0)));
         windmillNode.attachObject(windmillEnt);
         self.houseNumber += 1;
