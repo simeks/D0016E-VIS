@@ -104,7 +104,7 @@ class Input(OIS.KeyListener):
         quatz = ogre.Quaternion(0, (0,0,1));
         quat = quatx * quaty * quatz;
 
-        self.position = self.offset + ogre.Vector3(packet.Pos[0]*scale, 30, -packet.Pos[1]*scale);
+        self.position = self.offset + ogre.Vector3(packet.Pos[0]*scale, 60, -packet.Pos[1]*scale);
 
 
         velocity = ogre.Vector3(packet.Vel[0],0,packet.Vel[1]);
