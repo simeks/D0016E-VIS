@@ -25,7 +25,7 @@ class Camera:
 
         self.orientation = self.mainCamera.getOrientation();
         
-        self.rigidBody = self.scene.physics.createCameraBody(self, 50, 0);
+        self.rigidBody = self.scene.physics.createCameraBody(self, ogre.Vector3(100,100,100), 500);
 
 
         # Ifall vi har flera kameror men bara ett fönster så kan inte viewporten täcka hela fönstret
@@ -64,11 +64,11 @@ class Camera:
 
     def update(self, pos, orientation, acceleration, velocity):
         if(self.rigidBody != None):
-            self.rigidBody.applyForce(physics.toBtVector3(acceleration), physics.toBtVector3(pos - self.mainCamera.getPosition()));
-            #self.rigidBody.proceedToTransform(bullet.btTransform(bullet.btQuaternion(), physics.toBtVector3(pos)));
-            trans = bullet.btTransform();
-            self.rigidBody.getMotionState().getWorldTransform(trans);
-            vec = trans.getOrigin();
+            #self.rigidBody.applyForce(physics.toBtVector3(acceleration), physics.toBtVector3(pos));
+            self.rigidBody.proceedToTransform(bullet.btTransform(physics.toBtQuaternion(ogre.Quaternion(0, (0, 1, 0))), physics.toBtVector3(pos)));
+            self.rigidBody.setAngularVelocity(bullet.btVector3(0,0,0));
+            self.rigidBody.setLinearVelocity(bullet.btVector3(0,0,0));
+
             
         self.orientation = orientation;
         acceleration = orientation * acceleration;

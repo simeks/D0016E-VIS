@@ -122,7 +122,7 @@ class PhysicsWorld:
         self.bodies.append(PhysicsWorld.Body(shape, motionState, constructInfo, rigidBody));
         self.world.addRigidBody(rigidBody);
         
-    def createCameraBody(self, camera, radius, mass):
+    def createCameraBody(self, camera, halfSize, mass):
         pos = camera.getPosition();
         rot = camera.getOrientation();
         
@@ -130,15 +130,15 @@ class PhysicsWorld:
         motionState = bullet.btDefaultMotionState(bullet.btTransform(
             bullet.btQuaternion(0,0,0,1), bullet.btVector3(pos.x,pos.y,pos.z)));
 
-        sphereShape = bullet.btSphereShape(radius);
+        shape = bullet.btBoxShape(toBtVector3(halfSize));
         inertia = bullet.btVector3(0,0,0);
-        sphereShape.calculateLocalInertia(mass, inertia);
+        shape.calculateLocalInertia(mass, inertia);
         
         constructInfo = bullet.btRigidBody.btRigidBodyConstructionInfo(
-            mass, motionState, sphereShape, inertia);
+            mass, motionState, shape, inertia);
         rigidBody = bullet.btRigidBody(constructInfo);
 
-        self.bodies.append(PhysicsWorld.Body(sphereShape, motionState, constructInfo, rigidBody));
+        self.bodies.append(PhysicsWorld.Body(shape, motionState, constructInfo, rigidBody));
         self.world.addRigidBody(rigidBody);
         return rigidBody;
         

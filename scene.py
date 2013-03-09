@@ -220,7 +220,7 @@ class Scene:
         node.attachObject(ent);
         node.setScale(12, 17, 12);
         aabb = ent.getMesh().getBounds();
-        self.physics.createCylinder(node, 12*aabb.getSize().x, (17*aabb.getSize().y)-3, 12*aabb.getSize().z, 50);
+        self.physics.createCylinder(node, 12*aabb.getSize().x, (17*aabb.getSize().y)-3, 12*aabb.getSize().z, 250);
         self.barrelNumber += 1;
     
     
