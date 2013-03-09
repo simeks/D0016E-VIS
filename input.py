@@ -82,6 +82,7 @@ class Input(OIS.KeyListener):
         #pyinsim.outsim_init('127.0.0.1', 13338, self.outsim_handler, 30.0)
         #pyinsim.main_loop(True)
         self.position = ogre.Vector3(0,100,0);
+        self.lastPacket = 0;
 
         rot = ogre.Quaternion(-math.pi, (0, 1, 0));
         self.camera.update(self.position, rot, ogre.Vector3(0,0,0),ogre.Vector3(0,0,0));
@@ -95,16 +96,17 @@ class Input(OIS.KeyListener):
         self.inputSystem = 0;
 
     
-    lastPacket = 0;
+    
     def outsim_handler(self, packet):
-        delta = lastPacket - packet.Time; # Tid i millisekunder sedan senaste paketet
-        lastPacket = packet.Time;
+        delta = packet.Time - self.lastPacket; # Tid i millisekunder sedan senaste paketet
+        self.lastPacket = packet.Time;
+        print "delta: ", delta
 
         # Beräkna hastighet och acceleration över intervallet 1 sekund 
         #   eftersom datan i paketen är över intervallet beräknat för delta
 
-        acceleration = ogre.Vector3(packet.Accel[0], 0, packet.Accel[1]) * (1000 / delta);
-        velocity = ogre.Vector3(packet.Vel[0],0,packet.Vel[1]) * (1000 / delta);
+        acceleration = ogre.Vector3(packet.Accel[0], 0, packet.Accel[1]) * (1000.0 / float(delta));
+        velocity = ogre.Vector3(packet.Vel[0],0,packet.Vel[1]) * (1000.0 / float(delta));
         
             
         quatx = ogre.Quaternion(0, (1,0,0));
