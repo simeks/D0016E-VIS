@@ -80,7 +80,6 @@ class Camera:
         orientation = orientation * orientationx * orientationz;
         self.mainCamera.setOrientation(orientation);
 
-            
         self.mainCamera.setPosition(pos);
 
 
