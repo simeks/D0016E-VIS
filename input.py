@@ -58,7 +58,7 @@ class Input(OIS.KeyListener):
         self.app = app;
         self.window = window;
         self.camera = camera
-        self.realInput = True;
+        self.realInput = False;
         self.velocity = ogre.Vector3(0, 0, 0);
         self.position = ogre.Vector3(0, 100, 0);
         self.offset = -ogre.Vector3(-19746, 0, -796);
@@ -100,13 +100,13 @@ class Input(OIS.KeyListener):
     def outsim_handler(self, packet):
         delta = packet.Time - self.lastPacket; # Tid i millisekunder sedan senaste paketet
         self.lastPacket = packet.Time;
-        print "delta: ", delta
+        scale = 0.001
 
         # Beräkna hastighet och acceleration över intervallet 1 sekund 
         #   eftersom datan i paketen är över intervallet beräknat för delta
 
-        acceleration = ogre.Vector3(packet.Accel[0], 0, packet.Accel[1]) * (1000.0 / float(delta));
-        velocity = ogre.Vector3(packet.Vel[0],0,packet.Vel[1]) * (1000.0 / float(delta));
+        acceleration = ogre.Vector3(packet.Accel[0]*scale, 0, packet.Accel[1]*scale) * (1000.0 / float(delta));
+        velocity = ogre.Vector3(packet.Vel[0]*scale,0,packet.Vel[1]*scale) * (1000.0 / float(delta));
         
             
         quatx = ogre.Quaternion(0, (1,0,0));
@@ -114,7 +114,7 @@ class Input(OIS.KeyListener):
         quatz = ogre.Quaternion(0, (0,0,1));
         quat = quatx * quaty * quatz;
         
-        scale = 0.001
+        
         self.position = self.offset + ogre.Vector3(packet.Pos[0]*scale, 60, -packet.Pos[1]*scale);
 
 
