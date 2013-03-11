@@ -103,7 +103,7 @@ class Application(ogre.FrameListener):
         self.scene.frame(evt);
         self.gui.setText("position", "Position: (X: %d, Y: %d, Z: %d)" %
                          (self.camera.getPosition().x, self.camera.getPosition().y, self.camera.getPosition().z));
-        self.gui.setText("velocity", "Velocity: %d (km/h)" % (abs(self.camera.getVelocity().z*3.6))); # Hastigheten är i m/s ursprungligen
+        self.gui.setText("velocity", "Velocity: %d (km/h)" % (abs(self.camera.getVelocity().z*36.0))); # Hastigheten är i m/s ursprungligen
         
         # Kolla ifall vårat fönster har stängts, i så fall returnerar vi false,
         #   vilket resulterar i att ogre avslutar

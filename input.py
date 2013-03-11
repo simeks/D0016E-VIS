@@ -58,7 +58,7 @@ class Input(OIS.KeyListener):
         self.app = app;
         self.window = window;
         self.camera = camera
-        self.realInput = False;
+        self.realInput = True;
         self.velocity = ogre.Vector3(0, 0, 0);
         self.position = ogre.Vector3(0, 100, 0);
         self.offset = -ogre.Vector3(-19746, 0, -796);

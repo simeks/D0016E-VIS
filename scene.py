@@ -36,7 +36,7 @@ class Scene:
         # Skapa himmelen
         self.sceneMgr.setSkyDome (True, "Examples/CloudySky", 24, 16, 50000)
         # Sätt så vi får ett ambient light som lyser upp scenen
-        self.sceneMgr.setAmbientLight(ogre.ColourValue(0.6,0.6,0.8));
+        self.sceneMgr.setAmbientLight(ogre.ColourValue(0.7,0.7,0.8));
         fadeColor = ogre.ColourValue(0.9, 0.9, 0.9);
         self.sceneMgr.setFog(ogre.FOG_LINEAR, fadeColor, 0.0, 10000, 80000);
         
@@ -80,9 +80,9 @@ class Scene:
         for i in range(0, 10):
             self.createHouse(11500+(math.sin(i)*1000), -1500+(i*800), rot);
         
-        #self.createWindmill(5000, 5000);
-        #self.createWindmill(5500, 3000);
-        #self.createWindmill(5000, 2000);
+        self.createWindmill(0, 15000);
+        self.createWindmill(1500, 13000);
+        self.createWindmill(2300, 12000);
 
         # Skapa staket
         self.createFence(ogre.Vector3(78,0,-5527), ogre.Vector3(2727,0,-10866));
@@ -118,12 +118,33 @@ class Scene:
 
         # skapa tunnor
         for b in range(1, 10):
-            self.createBarrel(2000, 160, 1300-b*200);
+            self.createBarrel(2000, 50, 1300-b*200);
 
+        for b in range(1, 10):
+            self.createBarrel(2500, 50, 1300-b*200);
+
+        for b in range(1, 10):
+            self.createBarrel(3000, 50, 1300-b*200);
+
+        for b in range(1, 10):
+            self.createBarrel(3500, 50, 1300-b*200);
         #
         #animationState = self.entity.getAnimationState('Idle')
         #animationState.setLoop(True)
         #animationState.setEnabled(True)
+
+
+
+        #for i in range(1, 6):
+        #    for j in range(1, i):
+        #        half = 100.0 / float(j+1);
+        #        self.createBarrel(4000+half, 60, -1500-i*100);
+        #        half += 100.0 / float(j+1);
+
+
+
+
+        
 
         # Lägg till ett directional light så man ser kuben något bättre
         self.light = self.sceneMgr.createLight("Light");
@@ -180,9 +201,9 @@ class Scene:
     def createWindmill(self, x, z):
         windmillEnt = self.sceneMgr.createEntity(str("windmill")+str(self.houseNumber), "windmill.mesh");
         windmillNode = self.rootNode.createChildSceneNode(str("windmill")+str(self.houseNumber));
-        windmillNode.setPosition(x, 1000, z);
+        windmillNode.setPosition(x, 2000, z);
         windmillNode.setScale(50, 50, 50);
-        windmillNode.setOrientation(ogre.Quaternion(math.pi/2.0, (1,0,0)));
+        windmillNode.setOrientation(ogre.Quaternion(-math.pi/3.0, (0,1,0))*ogre.Quaternion(math.pi/2.0, (1,0,0)));
         windmillNode.attachObject(windmillEnt);
         self.houseNumber += 1;
 
