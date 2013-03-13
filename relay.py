@@ -40,7 +40,6 @@ if __name__ == '__main__':
     pyinsim.outsim('127.0.0.1', outsimPort, outsim_handler, 30.0);
     while(True):
         pyinsim.run(False);
-        # Insim fick timeout, vi väntar 10 sekunder och försöker igen
-        print "Insim timeout, retrying in 10 seconds...";
-        time.sleep(10);
+        # Insim fick timeout, vi försöker igen
+        print "Insim timeout, retrying...";
     
