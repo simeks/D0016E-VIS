@@ -53,12 +53,23 @@ class Input(OIS.KeyListener):
     #   app     : Objekt för vår huvudapplikation
     #   window  : Objekt för vårat fönster
     #   cameras : En lista med alla kameror i scenen
-    def __init__(self, app, window, camera):
+    def __init__(self, config, window, camera):
         OIS.KeyListener.__init__(self);
-        self.app = app;
+        self.config = config;
         self.window = window;
-        self.camera = camera
-        self.realInput = True;
+        self.camera = camera;
+        if(config.has_option("input", "keyboard_input")):
+            self.keyboardInput = config.getboolean("input", "keyboard_input");
+        else:
+            self.keyboardInput = False;
+
+        if(config.has_option("input", "net_port")):
+            self.outsimPort = config.getint("input", "net_port");
+        else:
+            self.outsimPort = 13336;
+
+        
+            
         self.velocity = ogre.Vector3(0, 0, 0);
         self.position = ogre.Vector3(0, 100, 0);
         self.offset = -ogre.Vector3(-19746, 0, -796);
@@ -76,7 +87,7 @@ class Input(OIS.KeyListener):
         # Lägg detta objekt för callbacks 
         self.keyboard.setEventCallback(self);
 
-        self.server = OutSimListener(13336, self.outsim_handler);
+        self.server = OutSimListener(self.outsimPort, self.outsim_handler);
         #insim = pyinsim.insim_init('130.240.5.130', 13337, UDPPort=13338)
         #insim.bind_event(pyinsim.EVT_OUTSIM, self.outsim_handler);
         #pyinsim.outsim_init('127.0.0.1', 13338, self.outsim_handler, 30.0)
@@ -132,7 +143,7 @@ class Input(OIS.KeyListener):
         # Behandla all inkommande data
         asyncore.loop(count = 1);
 
-        if(self.realInput):
+        if(self.keyboardInput):
             pos = self.camera.getPosition();
             pos += (self.velocity_forward * evt.timeSinceLastFrame) * (self.camera.getOrientation() * ogre.Vector3(0,0,-1));
             orientation = self.camera.getOrientation();
@@ -146,7 +157,7 @@ class Input(OIS.KeyListener):
 
         
     def keyPressed(self, evt):
-        if(self.realInput):
+        if(self.keyboardInput):
             if(evt.key == OIS.KC_UP):
                 self.velocity_forward = 1000;
                 
@@ -162,7 +173,7 @@ class Input(OIS.KeyListener):
         return True
  
     def keyReleased(self, evt):
-        if(self.realInput):
+        if(self.keyboardInput):
             if(evt.key == OIS.KC_UP):
                 self.velocity_forward = 0;
                 

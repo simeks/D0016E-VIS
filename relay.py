@@ -3,7 +3,9 @@ import pyinsim
 import socket
 import time
 
-addrs = [( "127.0.0.1", 13336 )]#, ( "130.240.5.194", 13336 )]
+from optparse import OptionParser;
+
+addrs = []
 outSocket = None
 
          
@@ -23,8 +25,19 @@ def outsim_handler(outsim, packet):
 
 
 if __name__ == '__main__':
+    parser = OptionParser();
+    parser.add_option("--outsim-port", action="store", type="int", dest="outsimPort", default=13338);
+    parser.add_option("--remote-host", action="store", type="str", dest="remote_host", default="127.0.0.1");
+    parser.add_option("--remote-port", action="store", type="int", dest="remote_port", default=13336);
+
+    (options, args) = parser.parse_args();
+
+    # Lägg till remote host
+    addrs.append((options.remote_host, options.remote_port));
+    
+    outsimPort = options.outsimPort;
     outSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM);
-    pyinsim.outsim('127.0.0.1', 13338, outsim_handler, 30.0);
+    pyinsim.outsim('127.0.0.1', outsimPort, outsim_handler, 30.0);
     while(True):
         pyinsim.run(False);
         # Insim fick timeout, vi väntar 10 sekunder och försöker igen

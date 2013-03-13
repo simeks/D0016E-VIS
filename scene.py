@@ -11,16 +11,6 @@ class Scene:
     def __init__(self, root):
         self.root = root;
 
-        # default värden
-        #self.walkSpeed = 200.0 # Objektets hastighet
-        #self.direction = ogre.Vector3().ZERO # Objektets riktning
-        #self.distance = 0.0 # Distansen mellan objektet och punkten dit objektet är påväg
-
-        # 
-        #self.walklist = []
-        #self.walklist.append(ogre.Vector3(-4350, 0, -550))
-        #self.walklist.append(ogre.Vector3(-3350, 0, 550))
-
         self.physics = physics.PhysicsWorld();
         self.houseNumber = 0;
         self.fenceNumber = 0;
@@ -45,16 +35,6 @@ class Scene:
 
         # Initialisera fysikvärlden
         self.physics.init(-1000);
-        
-        # Skapa en entitet från en mesh-fil vi har bland vår media
-        #self.entity = self.sceneMgr.createEntity("Sinbad", "robot.mesh");
-        #self.entity.setCastShadows(True);
-        # Skapa en child node till vår root node
-        #self.node = self.rootNode.createChildSceneNode('SinbadNode', (-4350, 0, -550));
-        # och fäst vår entitet vid den noden
-        #self.node.attachObject(self.entity);
-        #self.node.setScale(10, 10, 10);
-        
         
         # Lägg till ett stort plan (20000x20000)
         plane = ogre.Plane((0, 1, 0), 0);
@@ -128,22 +108,6 @@ class Scene:
 
         for b in range(1, 10):
             self.createBarrel(3500, 50, 1300-b*200);
-        #
-        #animationState = self.entity.getAnimationState('Idle')
-        #animationState.setLoop(True)
-        #animationState.setEnabled(True)
-
-
-
-        #for i in range(1, 6):
-        #    for j in range(1, i):
-        #        half = 100.0 / float(j+1);
-        #        self.createBarrel(4000+half, 60, -1500-i*100);
-        #        half += 100.0 / float(j+1);
-
-
-
-
         
 
         # Lägg till ett directional light så man ser kuben något bättre
@@ -244,49 +208,10 @@ class Scene:
         self.physics.createCylinder(node, 12*aabb.getSize().x, (17*aabb.getSize().y)-3, 12*aabb.getSize().z, 250);
         self.barrelNumber += 1;
     
-    
-##    def nextLocation(self):
-##      if len(self.walklist) == 0:
-##         return False
-##      self.destination = self.walklist.pop(0) # Plocka objektet högst upp i listan
-##      self.walklist.append(self.destination) # Lägg tillbaka längst bak i listan
-##      self.direction = self.destination - self.node.getPosition()
-##      self.distance = self.direction.normalise()
-## 
-##      src = self.node.getOrientation() * ogre.Vector3().UNIT_X
-##      if 1.0 + src.dotProduct(self.direction) < 0.0001:
-##         self.node.yaw(ogre.Degree(180))
-##      else:
-##         quat = src.getRotationTo(self.direction)
-##         self.node.rotate(quat)
-##      return True
-
 
     def frame(self, evt):
         # Kör ett steg av fysiksimuleringen
         self.physics.frame(evt);
-        #if self.direction == ogre.Vector3().ZERO:
-            #if self.nextLocation():
-                # Set walking animation
-                #self.animationStateTop = self.entity.getAnimationState('Walk')
-                #self.animationStateTop.setLoop(True)
-                #self.animationStateTop.setEnabled(True)
-                
-        #else:
-            #move = self.walkSpeed * evt.timeSinceLastFrame;
-            #self.distance -= move
-            #if self.distance <= 0.0:
-                #self.node.setPosition(self.destination)
-                #self.direction = ogre.Vector3().ZERO
-                #if not self.nextLocation():
-                    # Set Idle animation
-                    #self.animationStateTop = self.entity.getAnimationState('Idle')
-                    #self.animationStateTop.setLoop(True)
-                    #self.animationStateTop.setEnabled(True)
-            #else:
-                #self.node.translate(self.direction * move)
-        #self.animationStateTop.addTime(evt.timeSinceLastFrame)
-        
-    #def shutdown(self):
+
         
 

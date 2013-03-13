@@ -7,16 +7,29 @@ import gui
 
 import math
 
-from optparse import OptionParser;
+import ConfigParser
 
 class Application(ogre.FrameListener):
     # Konstruktor
-    def __init__(self, multipleCameras, multipleWindows, cameraAngle):
-        # Definerar ifall vi ska ha flera kameror eller inte
-        self.multipleCameras = multipleCameras;
-        self.multipleWindows = multipleWindows;
-        self.cameraAngle = cameraAngle;
+    def __init__(self, config):
+        self.config = config;
         
+        # Ladda in inställningar från konfigurations-filen
+        if(config.has_option("application", "multiple_cameras")):
+            self.multipleCameras = config.getboolean("application", "multiple_cameras");
+        else:
+            self.multipleCameras = False;
+
+        if(config.has_option("application", "multiple_windows")):
+            self.multipleWindows = config.getboolean("application", "multiple_windows");
+        else:
+            self.multipleWindows = False;
+
+        if(config.has_option("application", "camera_angle")):
+            self.cameraAngle = config.getfloat("application", "camera_angle");
+        else:
+            self.cameraAngle = 58;
+
         ogre.FrameListener.__init__(self);
         # Håller koll på om applikationen håller på avslutas
         self.isStopping = False;
@@ -78,7 +91,7 @@ class Application(ogre.FrameListener):
         self.scene.init();
         
         self.camera = camera.Camera(self, self.scene, self.multipleCameras, self.multipleWindows, self.cameraAngle);
-        self.input = input.Input(self, self.mainWindow, self.camera);
+        self.input = input.Input(self.config, self.mainWindow, self.camera);
 
         self.input.init();
         # Lägg till detta objekt som en framelistener så vi får callbacks varje frame
@@ -130,17 +143,11 @@ class Application(ogre.FrameListener):
         return (self.isStopping == False);
     
 if __name__ == '__main__':
-    parser = OptionParser();
-    parser.add_option("--multi-camera", action="store_true", dest="multicamera", default=False);
-    parser.add_option("--multi-window", action="store_true", dest="multiwindow", default=False);
-    parser.add_option("--camera-angle", action="store", type="int", dest="angle", default=58);
-
-    (options, args) = parser.parse_args();
-    
-    multipleCameras = options.multicamera; # Definerar ifall vi ska ha flera kameror eller inte
-    multipleWindows = options.multiwindow; # Definerar ifall vi ska ha flera fönster eller inte
-    cameraAngle = options.angle;
-    
-    app = Application(multipleCameras, multipleWindows, cameraAngle);
-    app.run();
+    config = ConfigParser.RawConfigParser();
+    files = config.read("settings.ini");
+    if(len(files) == 0):
+        print "settings.ini not found";
+    else:
+        app = Application(config);
+        app.run();
 
