@@ -88,10 +88,6 @@ class Input(OIS.KeyListener):
         self.keyboard.setEventCallback(self);
 
         self.server = OutSimListener(self.outsimPort, self.outsim_handler);
-        #insim = pyinsim.insim_init('130.240.5.130', 13337, UDPPort=13338)
-        #insim.bind_event(pyinsim.EVT_OUTSIM, self.outsim_handler);
-        #pyinsim.outsim_init('127.0.0.1', 13338, self.outsim_handler, 30.0)
-        #pyinsim.main_loop(True)
         self.position = ogre.Vector3(0,100,0);
         self.lastPacket = 0;
 

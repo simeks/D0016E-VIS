@@ -87,7 +87,7 @@ class Application(ogre.FrameListener):
         ogre.ResourceGroupManager.getSingleton().initialiseAllResourceGroups();
 
         # Skapa vår scen
-        self.scene = scene.Scene(self.root);
+        self.scene = scene.Scene(self.config, self.root);
         self.scene.init();
         
         self.camera = camera.Camera(self, self.scene, self.multipleCameras, self.multipleWindows, self.cameraAngle);

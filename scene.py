@@ -2,13 +2,14 @@
 import ogre.renderer.OGRE as ogre
 import math
 import physics
-
+import json
 
 
 class Scene:
     # Konstruktor
     #   root    : Ogres root-objekt
-    def __init__(self, root):
+    def __init__(self, config, root):
+        self.config = config;
         self.root = root;
 
         self.physics = physics.PhysicsWorld();
@@ -33,8 +34,31 @@ class Scene:
         # Eftersom scengrafen är som ett träd så hämtar vi root-noden och bygger utifrån den
         self.rootNode = self.sceneMgr.getRootSceneNode();
 
+
+        # Ladda in nivån
+        if(self.config.has_option("scene", "level")):
+            levelFile = self.config.get("scene", "level");
+        else:
+            print "Missing level file"
+            return;
+
+        levelFh = open("assets/"+levelFile); 
+        level = json.load(levelFh);
+        
         # Initialisera fysikvärlden
-        self.physics.init(-1000);
+        self.physics.init(level["gravity"]);
+
+        for o in level["objects"]:
+            if(o["type"] == "barrel"):
+                self.createBarrel(o["pos"][0],o["pos"][1],o["pos"][2]);
+            elif(o["type"] == "windmill"):
+                self.createWindmill(o["pos"][0],o["pos"][1]);
+            elif(o["type"] == "house"):
+                self.createHouse(o["pos"][0],o["pos"][1],
+                            ogre.Quaternion(o["rot"][0],o["rot"][1],o["rot"][2],o["rot"][3]));
+            elif(o["type"] == "fence"):
+                self.createFence(ogre.Vector3(o["pos1"][0],o["pos1"][1],o["pos1"][2]), ogre.Vector3(o["pos2"][0],o["pos2"][1],o["pos2"][2]));
+
         
         # Lägg till ett stort plan (20000x20000)
         plane = ogre.Plane((0, 1, 0), 0);
@@ -47,67 +71,6 @@ class Scene:
 
         # Skapa en representation av marken i fysikvärlden
         self.physics.createGround(self.planeNode);
-
-
-        # Skapa väg
-        self.createRoad(ogre.Vector3(7000, 1, -10000), ogre.Vector3(7000, 1, 10000))
-
-        # Skapa hus
-        rot = ogre.Quaternion(math.pi/2.0, (0, 1, 0));
-        for i in range(0, 10):
-            self.createHouse(10000+(math.sin(i)*1000), -2000+(i*800), rot);
-
-        for i in range(0, 10):
-            self.createHouse(11500+(math.sin(i)*1000), -1500+(i*800), rot);
-        
-        self.createWindmill(0, 15000);
-        self.createWindmill(1500, 13000);
-        self.createWindmill(2300, 12000);
-
-        # Skapa staket
-        self.createFence(ogre.Vector3(78,0,-5527), ogre.Vector3(2727,0,-10866));
-        self.createFence(ogre.Vector3(2727,0,-10866), ogre.Vector3(2963,0,-11459));
-        self.createFence(ogre.Vector3(2963,0,-11459), ogre.Vector3(4496,0,-14595)); 
-        self.createFence(ogre.Vector3(4435,0,-14536), ogre.Vector3(4994,0,-14997)); 
-        self.createFence(ogre.Vector3(4994,0,-14997), ogre.Vector3(5470,0,-15118)); 
-        self.createFence(ogre.Vector3(5470,0,-15118), ogre.Vector3(5885,0,-15046)); 
-        self.createFence(ogre.Vector3(5885,0,-15046), ogre.Vector3(9340,0,-13314));
-        self.createFence(ogre.Vector3(9340,0,-13314), ogre.Vector3(10044,0,-13251));      
-        self.createFence(ogre.Vector3(9925,0,-13222), ogre.Vector3(10216,0,-12885)); 
-        self.createFence(ogre.Vector3(10216,0,-12885), ogre.Vector3(10468,0,-12662));        
-        self.createFence(ogre.Vector3(10468,0,-12662), ogre.Vector3(10940,0,-12401));        
-        self.createFence(ogre.Vector3(10940,0,-12401), ogre.Vector3(11225,0,-11865)); 
-        self.createFence(ogre.Vector3(11225,0,-11865), ogre.Vector3(11183,0,-11662)); 
-        self.createFence(ogre.Vector3(11183,0,-11662), ogre.Vector3(7588,0,-4514)); 
-        self.createFence(ogre.Vector3(7588,0,-4514), ogre.Vector3(6773,0,-2665)); 
-        self.createFence(ogre.Vector3(6773,0,-2665), ogre.Vector3(6628,0,-2234));
-        self.createFence(ogre.Vector3(6628,0,-2234), ogre.Vector3(6613,0,2343));         
-        self.createFence(ogre.Vector3(6613,0,2343), ogre.Vector3(6684,0,3972)); 
-        self.createFence(ogre.Vector3(6684,0,3972), ogre.Vector3(6600,0,4770)); 
-        self.createFence(ogre.Vector3(6600,0,4770), ogre.Vector3(6169,0,5278)); 
-        self.createFence(ogre.Vector3(6169,0,5278), ogre.Vector3(220,0,5297)); 
-        self.createFence(ogre.Vector3(220,0,5297), ogre.Vector3(-85,0,5019)); 
-        self.createFence(ogre.Vector3(-85,0,5019), ogre.Vector3(-431,0,4603)); 
-        self.createFence(ogre.Vector3(-431,0,4603), ogre.Vector3(-555,0,4239)); 
-        self.createFence(ogre.Vector3(-555,0,4239), ogre.Vector3(-555,0,-1141));  
-        self.createFence(ogre.Vector3(-555,0,-1141), ogre.Vector3(-603,0,-1979)); 
-        self.createFence(ogre.Vector3(-603,0,-1979), ogre.Vector3(-525,0,-3899)); 
-        self.createFence(ogre.Vector3(-525,0,-3899), ogre.Vector3(-828,0,-4550)); 
-        self.createFence(ogre.Vector3(-840,0,-4489), ogre.Vector3(-415,0,-5301));  
-        self.createFence(ogre.Vector3(-486,0,-5302), ogre.Vector3(78,0,-5527)); 
-
-        # skapa tunnor
-        for b in range(1, 10):
-            self.createBarrel(2000, 50, 1300-b*200);
-
-        for b in range(1, 10):
-            self.createBarrel(2500, 50, 1300-b*200);
-
-        for b in range(1, 10):
-            self.createBarrel(3000, 50, 1300-b*200);
-
-        for b in range(1, 10):
-            self.createBarrel(3500, 50, 1300-b*200);
         
 
         # Lägg till ett directional light så man ser kuben något bättre
@@ -122,37 +85,6 @@ class Scene:
         camera = self.sceneMgr.createCamera(name);
         return camera;
 
-    roadCreated = False;
-    def createRoad(self, p2, p1):
-        dir = p2 - p1;
-        roadLength = 1000;
-        num = (dir.length() / roadLength)+1;
-        dir.normalise();
-
-        #quatx = ogre.Quaternion(math.pi, (1,0,0)); # Rotera 180 grader så att staketet inte är upp och ned
-        quaty = dir.getRotationTo(ogre.Vector3(0,0,-1));
-        quat = quaty;
-
-        if(self.roadCreated == False):
-            plane = ogre.Plane((0, 1, 0), 0);
-            ogre.MeshManager.getSingleton().createPlane ("Road", "General", plane, 800, roadLength,
-                                                         100, 100, True, 1, 1, 1, (0,0,1));
-            self.roadCreated = True;
-
-        rootNode = self.rootNode.createChildSceneNode(str("road_root_"+str(self.fenceNumber)));
-        pos = ogre.Vector3(0,0,0);
-        for i in range(0, int(num)):
-            roadEntity = self.sceneMgr.createEntity(str("road_")+str(self.fenceNumber)+"_"+str(i), "Road");
-            roadEntity.setMaterialName("Road");
-            roadNode = rootNode.createChildSceneNode(str("road_")+str(self.fenceNumber)+"_"+str(i));
-            roadNode.setPosition(pos);
-            roadNode.setOrientation(ogre.Quaternion(math.pi/2,(0,1,0)));
-            roadNode.attachObject(roadEntity);
-            pos.x += roadLength;
-            
-        rootNode.setPosition(p2);
-        rootNode.setOrientation(quat);
-        self.fenceNumber += 1;
 
     def createHouse(self, x, z, orientation):
         houseEnt = self.sceneMgr.createEntity(str("house")+str(self.houseNumber), "tudorhouse.mesh");
