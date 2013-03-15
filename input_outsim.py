@@ -1,15 +1,11 @@
 # -*- coding: cp1252 -*-
 import ogre.renderer.OGRE as ogre
-import ogre.io.OIS as OIS
 import math
 import pyinsim
 import time
-import Queue
-import threading
 import socket
 import select
 import asyncore
-from threading import Thread
 
 
 import camera
@@ -40,36 +36,22 @@ class OutSimListener(asyncore.dispatcher):
     # Actually sends the message if there was something in the buffer.
     #def handle_write(self):
 
-class Input(OIS.KeyListener):
+class OutsimInput:
 
-    num_timesteps = 75;   # Antalet timesteps
-    timestep = 0.25;        # Sekunder per timestep
-    total_time = 0;         # Totala tiden i vår animation, startar om när vi gått igenom all data
-
-    velocity_forward = 0;
-    turn_left = 0;
-    
     # Konstruktor
     #   app     : Objekt för vår huvudapplikation
     #   window  : Objekt för vårat fönster
     #   cameras : En lista med alla kameror i scenen
     def __init__(self, config, window, camera):
-        OIS.KeyListener.__init__(self);
         self.config = config;
         self.window = window;
         self.camera = camera;
-        if(config.has_option("input", "keyboard_input")):
-            self.keyboardInput = config.getboolean("input", "keyboard_input");
-        else:
-            self.keyboardInput = False;
 
         if(config.has_option("input", "net_port")):
             self.outsimPort = config.getint("input", "net_port");
         else:
             self.outsimPort = 13336;
 
-        
-            
         self.velocity = ogre.Vector3(0, 0, 0);
         self.position = ogre.Vector3(0, 100, 0);
         self.offset = -ogre.Vector3(-19746, 0, -796);
@@ -78,15 +60,6 @@ class Input(OIS.KeyListener):
         self.shutdown();
 
     def init(self):
-        # Skapa och initialisera OIS, som är vårat bibliotek för indata från
-        #   saker som tagentbord och mus.
-        hWnd = self.window.getCustomAttributeInt("WINDOW"); # Handle för vårat fönster
-        self.inputSystem = OIS.createPythonInputSystem([("WINDOW",str(hWnd))]);
-        # Skapa objekt för input från tagentbord
-        self.keyboard = self.inputSystem.createInputObjectKeyboard(OIS.OISKeyboard,True);
-        # Lägg detta objekt för callbacks 
-        self.keyboard.setEventCallback(self);
-
         self.server = OutSimListener(self.outsimPort, self.outsim_handler);
         self.position = ogre.Vector3(0,100,0);
         self.lastPacket = 0;
@@ -95,12 +68,7 @@ class Input(OIS.KeyListener):
         self.camera.update(self.position, rot, ogre.Vector3(0,0,0),ogre.Vector3(0,0,0));
 
 
-    def shutdown(self):
-        # Städa upp allt vi skapat med OIS
-        if(self.keyboard):
-            self.inputSystem.destroyInputObjectKeyboard(self.keyboard);
-        OIS.InputManager.destroyInputSystem(self.inputSystem);
-        self.inputSystem = 0;
+    #def shutdown(self):
 
     
     
@@ -115,72 +83,21 @@ class Input(OIS.KeyListener):
         acceleration = ogre.Vector3(packet.Accel[0]*scale, 0, packet.Accel[1]*scale) * (1000.0 / float(delta));
         velocity = ogre.Vector3(packet.Vel[0]*scale,0,packet.Vel[1]*scale) * (1000.0 / float(delta));
         
-            
         quatx = ogre.Quaternion(0, (1,0,0));
         quaty = ogre.Quaternion(packet.Heading, (0,1,0));
         quatz = ogre.Quaternion(0, (0,0,1));
         quat = quatx * quaty * quatz;
         
-        
         self.position = self.offset + ogre.Vector3(packet.Pos[0]*scale, 60, -packet.Pos[1]*scale);
-
-
+        
         self.camera.update(self.position, quaty, acceleration, velocity);
 
     # Denna anropas från vårat applikations-objekt en gång varje frame så att vi får
     # en chans att göra saker som att läsa indata eller flytta kameran
     #   evt     : FrameEvent, samma data som kommer i Ogre::FrameListener::frameStarted
     def frame(self, evt):
-        self.total_time += evt.timeSinceLastFrame;
-        # Läs in input-data
-        if(self.keyboard):
-            self.keyboard.capture();
-
-        # Behandla all inkommande data
         asyncore.loop(count = 1);
 
-        if(self.keyboardInput):
-            pos = self.camera.getPosition();
-            pos += (self.velocity_forward * evt.timeSinceLastFrame) * (self.camera.getOrientation() * ogre.Vector3(0,0,-1));
-            orientation = self.camera.getOrientation();
-            if(self.turn_left != 0):
-                yaw = ogre.Quaternion(self.turn_left * evt.timeSinceLastFrame, (0, 1, 0));
-                orientation = orientation * yaw;
-        
-            self.camera.update(pos, orientation, ogre.Vector3(0,0,0), ogre.Vector3(0,0,0));
 
 
-
-        
-    def keyPressed(self, evt):
-        if(self.keyboardInput):
-            if(evt.key == OIS.KC_UP):
-                self.velocity_forward = 1000;
-                
-            if(evt.key == OIS.KC_DOWN):
-                self.velocity_forward = -1000;
-                
-            if(evt.key == OIS.KC_LEFT):
-                self.turn_left = 1.0;
-                
-            if(evt.key == OIS.KC_RIGHT):
-                self.turn_left = -1.0;
-        
-        return True
- 
-    def keyReleased(self, evt):
-        if(self.keyboardInput):
-            if(evt.key == OIS.KC_UP):
-                self.velocity_forward = 0;
-                
-            if(evt.key == OIS.KC_DOWN):
-                self.velocity_forward = 0;
-                
-            if(evt.key == OIS.KC_LEFT):
-                self.turn_left = 0;
-                
-            if(evt.key == OIS.KC_RIGHT):
-                self.turn_left = 0;
-            
-        return True
     

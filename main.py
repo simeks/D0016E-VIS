@@ -1,6 +1,9 @@
 # -*- coding: cp1252 -*-
 import ogre.renderer.OGRE as ogre
 import input
+import input_file
+import input_keyboard
+import input_outsim
 import scene
 import camera
 import gui
@@ -91,7 +94,21 @@ class Application(ogre.FrameListener):
         self.scene.init();
         
         self.camera = camera.Camera(self, self.scene, self.multipleCameras, self.multipleWindows, self.cameraAngle);
-        self.input = input.Input(self.config, self.mainWindow, self.camera);
+        
+        # Välj källa för styrdata
+        if(self.config.has_option("input", "input_type")):
+            type = self.config.get("input", "input_type");
+            if(type == "file"):
+                self.input = input_file.FileInput(self.config, self.mainWindow, self.camera);
+            elif(type == "outsim"):
+                self.input = input_outsim.OutsimInput(self.config, self.mainWindow, self.camera);
+            else: # type == "keyboard"
+                self.input = input_keyboard.KeyboardInput(self.config, self.mainWindow, self.camera);
+
+        else:
+            # Tagentbordet är standard input
+            self.input = input_keyboard.KeyboardInput(self.config, self.mainWindow, self.camera);
+
 
         self.input.init();
         # Lägg till detta objekt som en framelistener så vi får callbacks varje frame
