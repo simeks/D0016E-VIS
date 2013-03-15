@@ -12,7 +12,7 @@ class FileInput:
     total_time = 0;
 
 
-    num_timesteps = 1001;
+    num_timesteps = 0;
     timestep = 0.01;
 
     # Lista för inlästa positioner, positionerna representeras av en ogre.Vector3 där Y-axeln pekar uppåt.
@@ -27,12 +27,20 @@ class FileInput:
 
     # Anropas när applikationen startas
     def init(self):
+        
+        if(self.config.has_option("input", "num_timesteps")):
+            self.num_timesteps = self.config.getint("input", "num_timesteps");
+            
+        if(self.config.has_option("input", "timestep")):
+            self.timestep = self.config.getfloat("input", "timestep");
+            
+
         inputFile = "";
         if(self.config.has_option("input", "input_file")):
             inputFile = self.config.get("input", "input_file");
         else:
             return;
-
+        
         # Ladda in data från excel-fil
         wb = load_workbook('assets/indata.xlsx');
         ws = wb.get_active_sheet();
@@ -50,8 +58,11 @@ class FileInput:
     # en chans att göra saker som att läsa indata eller flytta kameran
     #   evt     : FrameEvent, samma data som kommer i Ogre::FrameListener::frameStarted
     def frame(self, evt):
+        if(self.num_timesteps == 0):
+            return;
+        
         self.total_time += evt.timeSinceLastFrame;
-
+        
         # Ifall tiden har gått utanför våran data så startar vi bara om från t=0 igen
         if(self.total_time > ((self.num_timesteps-1) * self.timestep)):
             self.total_time = 0;

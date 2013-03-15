@@ -1,6 +1,5 @@
 # -*- coding: cp1252 -*-
 import ogre.renderer.OGRE as ogre
-import input
 import input_file
 import input_keyboard
 import input_outsim
